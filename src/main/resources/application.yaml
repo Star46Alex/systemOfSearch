@@ -1,0 +1,20 @@
+spring.datasource.url: jdbc:mysql://localhost:3306/search_engine
+spring.datasource.username: root
+spring.datasource.password: Honor46Sql$10
+spring.jpa.hibernate.ddl-auto: update
+spring.output.ansi.enabled: ALWAYS
+
+config:
+  prefix:
+
+  agent: Mozilla/5.0 (Windows; U; WindowsNT 5.1; en-US; rv1.8.1.6) Gecko/20070725 Firefox/2.0.0.6
+  webinterface: /admin
+  site:
+    - url: http://astudio.store
+      name: шторы
+    - url: http://xn---31-5cdk9a0a5ba.xn--p1ai
+      name: лестнецы
+    - url: http://massivepro.ru/
+      name: СТОЛЯРНОЕ ПРОИЗВОДСТВО
+    - url: http://www.playback.ru/
+      name: Тел
