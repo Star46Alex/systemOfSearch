@@ -1,15 +1,14 @@
 package com.alex_star.systemofsearch.model;
 
 import com.alex_star.systemofsearch.lemmatizer.Lemmatizer;
-
 import java.util.ArrayList;
 import java.util.List;
 
 
 public class Request {
 
-  private String request;
-  private List<String> requestLemmas;
+  private final String request;
+  private final List<String> requestLemmas;
 
   public List<String> getRequestLemmas() {
     return requestLemmas;

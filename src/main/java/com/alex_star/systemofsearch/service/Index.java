@@ -1,15 +1,14 @@
-package com.alex_star.systemofsearch.util;
+package com.alex_star.systemofsearch.service;
 
 import com.alex_star.systemofsearch.config.Properties;
 import com.alex_star.systemofsearch.model.Field;
 import com.alex_star.systemofsearch.model.Site;
 import com.alex_star.systemofsearch.model.Status;
-import com.alex_star.systemofsearch.service.*;
 import com.alex_star.systemofsearch.siteCrawlingSystem.LinkPull;
+import com.alex_star.systemofsearch.util.SiteIndexing;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.stereotype.Component;
-
+import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -18,12 +17,11 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-@Component
+@Service
 public class Index {
 
   private final static Log log = LogFactory.getLog(Index.class);
   private final Properties properties;
-
   private final FieldRepositoryService fieldRepositoryService;
   private final SiteRepositoryService siteRepositoryService;
   private final IndexRepositoryService indexRepositoryService;
@@ -52,7 +50,6 @@ public class Index {
     executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(siteList.size());
     fieldInit();
     boolean isIndexing;
-
     for (Site site : siteList) {
       isIndexing = startSiteIndexing(site);
       if (!isIndexing) {
@@ -107,7 +104,6 @@ public class Index {
 
   private boolean startSiteIndexing(Site site) {
    LinkPull.isInterrupted = false;
-
     Site site1 = siteRepositoryService.getSite(site.getUrl());
     if (site1 == null) {
       siteRepositoryService.save(site);
@@ -121,7 +117,6 @@ public class Index {
           lemmaRepositoryService,
           true);
       executor.execute(indexing);
-
       return true;
     } else {
       if (!site1.getStatus().equals(Status.INDEXING)) {
@@ -135,7 +130,6 @@ public class Index {
             lemmaRepositoryService,
             true);
         executor.execute(indexing);
-
         return true;
       } else {
         return false;
@@ -148,18 +142,12 @@ public class Index {
     if (executor.getActiveCount() == 0) {
       return false;
     }
-
    LinkPull.isInterrupted = true;
-
     executor.shutdownNow();
-
     try {
       isThreadAlive = executor.awaitTermination(1, TimeUnit.MINUTES);
     } catch (InterruptedException e) {
-
       log.error("Ошибка закрытия потоков: " + e);
-
-
     }
     if (isThreadAlive) {
       List<Site> siteList = siteRepositoryService.getAllSites();

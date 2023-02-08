@@ -9,7 +9,6 @@ import com.alex_star.systemofsearch.model.Status;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
 
 
@@ -17,7 +16,6 @@ import java.util.List;
 public class Statistic  {
 
   private static final Log log = LogFactory.getLog(Statistic.class);
-
   private final SiteRepositoryService siteRepositoryService;
   private final LemmaRepositoryService lemmaRepositoryService;
   private final PageRepositoryService pageRepositoryService;

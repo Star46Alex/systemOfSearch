@@ -10,26 +10,8 @@ public class RelevanceStorage {
   double relevance;
 
 
-  public RelevanceStorage(String uri, String title) {
-    this.uri = uri;
-    this.title = title;
-  }
-  public RelevanceStorage(String site, String siteName, String uri, String title, String snippet, double relevance) {
-    this.site = site;
-    this.siteName = siteName;
-    this.uri = uri;
-    this.title = title;
-    this.snippet = snippet;
-    this.relevance = relevance;
-  }
-
   public RelevanceStorage() {
-
   }
-
-//  public RelevanceStorage() {
-//
-//  }
 
 
   public String getSite() {

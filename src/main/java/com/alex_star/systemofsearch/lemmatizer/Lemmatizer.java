@@ -45,27 +45,6 @@ public class Lemmatizer {
   }
 
 
-  public String getLemma(String word) {
-    word = word.replaceAll("[\\pP\\s]", "")
-        .replace("_", "").replaceAll("[^А-Я,а-я]*", "").toLowerCase();
-    if (word.length() < 1) {
-      return word;
-    }
-    try {
-
-      List<String> morphInfo = luceneMorph.getNormalForms(word);
-      if (!morphInfo.isEmpty()) {
-        String wordBaseForm =
-            morphInfo.get(0);
-        return clearStaffWords(wordBaseForm);
-      }
-    } catch (Exception ex) {
-      ex.printStackTrace();
-    }
-    return "";
-
-  }
-
   public ArrayList<String> getLemmas(String text) {
     ArrayList<String> list = new ArrayList<>();
     text = text.replaceAll("[\\pP\\s]", "")
@@ -130,7 +109,7 @@ public class Lemmatizer {
   }
   public ArrayList<Integer> findLemmaIndexInText(String text, String lemma) {
     ArrayList<Integer> listOfIndexes = new ArrayList<>();
-    String[] list = text.split("[—]|\\p{Punct}|\\s");
+    String[] list = text.split("—|\\p{Punct}|\\s");
     int index = 0;
     for(String s1 : list) {
       List<String> lemmas = new ArrayList<>();

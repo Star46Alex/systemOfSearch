@@ -13,14 +13,11 @@ import org.jsoup.Jsoup;
 import org.jsoup.UnsupportedMimeTypeException;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
-
 import java.io.IOException;
 import java.util.*;
-
 public class SiteIndexing extends Thread {
 
     private final static Log log = LogFactory.getLog(SiteIndexing.class);
-
     private final Lemmatizer lemmatizer;
     private final Site site;
     private final Properties properties;
@@ -29,27 +26,25 @@ public class SiteIndexing extends Thread {
     private final IndexRepositoryService indexRepositoryService;
     private final PageRepositoryService pageRepositoryService;
     private final LemmaRepositoryService lemmaRepositoryService;
-    //  private final ProcessingLinksService processingLinksService;
     private final boolean allSite;
 
-    public SiteIndexing(Site site,
-                        Properties properties,
-                        FieldRepositoryService fieldRepositoryService,
-                        SiteRepositoryService siteRepositoryService,
-                        IndexRepositoryService indexRepositoryService,
-                        PageRepositoryService pageRepositoryService,
-                        LemmaRepositoryService lemmaRepositoryService,
-                        boolean allSite) {
-
-        this.lemmatizer = new Lemmatizer();
+    public SiteIndexing(
+            Site site, Properties properties,
+            FieldRepositoryService fieldRepositoryService,
+            SiteRepositoryService siteRepositoryService,
+            IndexRepositoryService indexRepositoryService,
+            PageRepositoryService pageRepositoryService,
+            LemmaRepositoryService lemmaRepositoryService,
+            boolean allSite) {
         this.site = site;
+        this.allSite = allSite;
+        this.lemmatizer = new Lemmatizer();
         this.properties = properties;
         this.fieldRepositoryService = fieldRepositoryService;
         this.siteRepositoryService = siteRepositoryService;
         this.indexRepositoryService = indexRepositoryService;
         this.pageRepositoryService = pageRepositoryService;
         this.lemmaRepositoryService = lemmaRepositoryService;
-        this.allSite = allSite;
     }
 
 
@@ -70,14 +65,13 @@ public class SiteIndexing extends Thread {
         catch (Exception e) {
             e.printStackTrace();
         }
-
     }
 
     public void runAllIndexing() throws InterruptedException {
         site.setStatus(Status.INDEXING);
         site.setStatusTime(new Date());
         siteRepositoryService.save(site);
-        AllLinks allLinks = new AllLinks(site.getUrl(), this.isInterrupted());
+        AllLinks allLinks = new AllLinks(site.getUrl());
         allLinks.builtAllLinks(this);
         List<String> allSiteUrls = allLinks.getAllLinks();
         for (String url : allSiteUrls) {
@@ -91,7 +85,7 @@ public class SiteIndexing extends Thread {
         siteRepositoryService.save(site);
         List<Field> fieldList = getFieldListFromDB();
         try {
-            Page page = getSearchPage(searchUrl, site.getUrl(), site.getId());
+            Page page = getSearchPage(searchUrl, site.getId());
             Page checkPage = pageRepositoryService.getPage(searchUrl);
             if (checkPage != null) {
                 page.setId(checkPage.getId());
@@ -121,11 +115,9 @@ public class SiteIndexing extends Thread {
         } finally {
             siteRepositoryService.save(site);
         }
-
         if (LinkPull.isInterrupted) {
             site.setStatus(Status.FAILED);
            throw new InterruptedException("Остановка!");
-
         } else {
             site.setStatus(Status.INDEXED);
         }
@@ -138,20 +130,17 @@ public class SiteIndexing extends Thread {
         pageRepositoryService.save(page);
     }
 
-    private Page getSearchPage(String url, String baseUrl, int siteId) throws IOException {
+    private Page getSearchPage(String url, int siteId) throws IOException {
         log.info("getSearchPage=" + url + ", siteId=" + siteId);
         Page page = new Page();
         Connection.Response response = Jsoup.connect(url)
                 .userAgent(properties.getAgent())
                 .referrer("https://www.google.com")
                 .execute();
-
         String content = response.body();
-
-        String path = url;
         int code = response.statusCode();
         page.setCode(code);
-        page.setPath(path);
+        page.setPath(url);
         page.setContent(content);
         page.setSiteId(siteId);
         return page;
@@ -227,18 +216,4 @@ public class SiteIndexing extends Thread {
             }
         }
     }
-
-    private void prepareDbToIndexing(Page page) {
-        List<Indexing> indexingList = indexRepositoryService.getAllIndexingByPageId(page.getId());
-        List<Lemma> allLemmasIdByPage = lemmaRepositoryService.findLemmasByIndexing(indexingList);
-        lemmaRepositoryService.deleteAllLemmas(allLemmasIdByPage);
-        indexRepositoryService.deleteAllIndexing(indexingList);
-        pageRepositoryService.deletePage(page);
-    }
-
-//  public  ProcessingLinksService getProcessingLinksService()
-//  {
-//    return  processingLinksService;
-//  }
-
 }

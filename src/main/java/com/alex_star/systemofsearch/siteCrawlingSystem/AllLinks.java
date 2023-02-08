@@ -1,18 +1,15 @@
 package com.alex_star.systemofsearch.siteCrawlingSystem;
 
 import com.alex_star.systemofsearch.util.SiteIndexing;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ForkJoinPool;
 import java.util.stream.Collectors;
-
 import static com.alex_star.systemofsearch.siteCrawlingSystem.LinkPull.isInterrupted;
 
 public class AllLinks {
 
   private final String url;
- // public static boolean isInterrupted;
   private List<String> allLinks;
 
   public void builtAllLinks(SiteIndexing siteIndexing) {
@@ -29,8 +26,7 @@ public class AllLinks {
   }
 
 
-  public AllLinks(String url, boolean isInterrupted) {
+  public AllLinks(String url) {
     this.url = url;
-    //this.isInterrupted = isInterrupted;
   }
 }

@@ -3,7 +3,6 @@ package com.alex_star.systemofsearch.service;
 import com.alex_star.systemofsearch.dto.response.FalseResponse;
 import com.alex_star.systemofsearch.dto.response.ResponseService;
 import com.alex_star.systemofsearch.dto.response.TrueResponse;
-import com.alex_star.systemofsearch.util.Index;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.stereotype.Service;
@@ -44,7 +43,6 @@ public class IndexingService {
 
   public ResponseService stopIndexing() {
     log.info("Попытка остановки индексации");
-   // AllLinks.isInterrupted = true;
     boolean indexing = this.index.stopSiteIndexing();
     ResponseService response;
     if (indexing) {
@@ -69,7 +67,6 @@ public class IndexingService {
       resp = new FalseResponse("Ошибка запуска индексации");
       return resp;
     }
-
     if (response.equals("not found")) {
       resp = new FalseResponse("Страница находится за пределами сайтов," +
           " указанных в конфигурационном файле");

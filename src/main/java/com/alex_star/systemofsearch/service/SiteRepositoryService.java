@@ -3,7 +3,6 @@ package com.alex_star.systemofsearch.service;
 import com.alex_star.systemofsearch.model.Site;
 import com.alex_star.systemofsearch.repository.SiteRepository;
 import org.springframework.stereotype.Service;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -12,7 +11,6 @@ import java.util.Optional;
 public class SiteRepositoryService {
 
   private final SiteRepository siteRepository;
-
   public SiteRepositoryService(SiteRepository siteRepository) {
     this.siteRepository = siteRepository;
   }

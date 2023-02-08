@@ -1,6 +1,5 @@
 package com.alex_star.systemofsearch.service;
 
-import com.alex_star.systemofsearch.model.Indexing;
 import com.alex_star.systemofsearch.model.Lemma;
 import com.alex_star.systemofsearch.repository.LemmaRepository;
 import org.springframework.stereotype.Service;
@@ -56,18 +55,6 @@ public class LemmaRepositoryService {
     return lemmaRepository.count(siteId);
   }
 
-  public synchronized void deleteAllLemmas(List<Lemma> lemmaList) {
-    lemmaRepository.deleteAll(lemmaList);
-  }
-
-
-  public List<Lemma> findLemmasByIndexing(List<Indexing> indexingList) {
-    int[] lemmaIdList = new int[indexingList.size()];
-    for (int i = 0; i < indexingList.size(); i++) {
-      lemmaIdList[i] = indexingList.get(i).getLemmaId();
-    }
-    return lemmaRepository.findSiteById(lemmaIdList);
-  }
 
   public void sortLemmasByFrequency(HashMap<String, Integer> lemmas, int siteId)
       throws SQLException {
@@ -81,7 +68,6 @@ public class LemmaRepositoryService {
         if (lemma != null) {
           result = lemma.getFrequency();
         }
-
         if (result != 0) {
           lemmas.replace(key, result);
         }

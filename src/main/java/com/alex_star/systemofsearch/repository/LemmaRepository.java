@@ -6,7 +6,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-
 import java.util.Collection;
 import java.util.List;
 
@@ -15,9 +14,6 @@ import java.util.List;
 public interface LemmaRepository extends CrudRepository<Lemma, Integer> {
 
   List<Lemma> findSiteByLemma(String lemma);
-
-  @Query(value = "SELECT * from lemma WHERE id IN(:id)", nativeQuery = true)
-  List<Lemma> findSiteById(int[] id);
 
   @Query(value = "SELECT count(*) from Lemma where site_id = :id", nativeQuery = true)
   long count(@Param("id") long id);

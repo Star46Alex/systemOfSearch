@@ -16,7 +16,6 @@ public class MapUtil {
     for (Entry<K, V> entry : list) {
       result.put(entry.getKey(), entry.getValue());
     }
-
     return result;
   }
 }

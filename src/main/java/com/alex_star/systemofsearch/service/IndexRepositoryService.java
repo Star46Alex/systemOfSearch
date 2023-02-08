@@ -21,27 +21,6 @@ public class IndexRepositoryService {
   }
 
 
-  public List<Indexing> getAllIndexingByPageId(int pageId) {
-    return indexRepository.findByPageId(pageId);
-  }
-
-
-  public synchronized void deleteAllIndexing(List<Indexing> indexingList) {
-    indexRepository.deleteAll(indexingList);
-  }
-
-
-  public Indexing getIndexing(int lemmaId, int pageId) {
-    Indexing indexing = null;
-    try {
-      indexing = indexRepository.findByLemmaIdAndPageId(lemmaId, pageId);
-    } catch (Exception e) {
-      System.out.println("lemmaId: " + lemmaId + " + pageId: " + pageId + " not unique");
-      e.printStackTrace();
-    }
-    return indexing;
-  }
-
   public synchronized void save(Indexing indexing) {
     indexRepository.save(indexing);
   }

@@ -1,7 +1,6 @@
 package com.alex_star.systemofsearch.model;
 
 import org.hibernate.annotations.Type;
-
 import javax.persistence.*;
 import java.util.Date;
 
