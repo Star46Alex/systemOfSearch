@@ -103,7 +103,7 @@ public class Index {
   }
 
   private boolean startSiteIndexing(Site site) {
-   LinkPull.isInterrupted = false;
+    LinkPull.isInterrupted = false;
     Site site1 = siteRepositoryService.getSite(site.getUrl());
     if (site1 == null) {
       siteRepositoryService.save(site);
@@ -142,7 +142,7 @@ public class Index {
     if (executor.getActiveCount() == 0) {
       return false;
     }
-   LinkPull.isInterrupted = true;
+    LinkPull.isInterrupted = true;
     executor.shutdownNow();
     try {
       isThreadAlive = executor.awaitTermination(1, TimeUnit.MINUTES);

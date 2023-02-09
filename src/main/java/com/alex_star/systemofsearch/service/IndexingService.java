@@ -48,8 +48,7 @@ public class IndexingService {
     if (indexing) {
       response = new TrueResponse();
       log.info("Индексация остановлена");
-    } 
-    else {
+    } else {
       response = new FalseResponse("Индексация не запущена");
       log.warn(
           "Остановка индексации не может быть выполнена, потому что процесс индексации не запущен.");

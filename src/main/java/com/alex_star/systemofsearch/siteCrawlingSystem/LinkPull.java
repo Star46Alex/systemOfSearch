@@ -18,7 +18,7 @@ public class LinkPull extends RecursiveTask<String> {
   private final String startUrl;
   public static boolean isInterrupted;
   private final SiteIndexing siteIndexing;
- public  static  final HashSet<String>allLinks = new HashSet<>();
+  public static final HashSet<String> allLinks = new HashSet<>();
 
 
   public LinkPull(String url, String startUrl, boolean isInterrupted, SiteIndexing siteIndexing) {
@@ -27,7 +27,6 @@ public class LinkPull extends RecursiveTask<String> {
     LinkPull.isInterrupted = isInterrupted;
     this.siteIndexing = siteIndexing;
   }
-
 
 
   @Override
@@ -49,7 +48,7 @@ public class LinkPull extends RecursiveTask<String> {
       }
     } catch (Exception e) {
       e.printStackTrace();
-      return  "";
+      return "";
     }
     return sb.toString();
   }

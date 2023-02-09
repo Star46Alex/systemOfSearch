@@ -29,13 +29,13 @@ public class SiteIndexing extends Thread {
     private final boolean allSite;
 
     public SiteIndexing(
-            Site site, Properties properties,
-            FieldRepositoryService fieldRepositoryService,
-            SiteRepositoryService siteRepositoryService,
-            IndexRepositoryService indexRepositoryService,
-            PageRepositoryService pageRepositoryService,
-            LemmaRepositoryService lemmaRepositoryService,
-            boolean allSite) {
+        Site site, Properties properties,
+        FieldRepositoryService fieldRepositoryService,
+        SiteRepositoryService siteRepositoryService,
+        IndexRepositoryService indexRepositoryService,
+        PageRepositoryService pageRepositoryService,
+        LemmaRepositoryService lemmaRepositoryService,
+        boolean allSite) {
         this.site = site;
         this.allSite = allSite;
         this.lemmatizer = new Lemmatizer();
@@ -51,18 +51,16 @@ public class SiteIndexing extends Thread {
     @Override
     public void run() {
         try {
-            log.info("Site Indexing started...");
+
+            log.info("Собираем карту сайта " + site.getUrl());
             if (allSite) {
                 runAllIndexing();
             } else {
                 runOneSiteIndexing(site.getUrl());
             }
-        }
-        catch (InterruptedException e)
-        {
-            log.info("Остановка "+site.getUrl());
-        }
-        catch (Exception e) {
+        } catch (InterruptedException e) {
+            log.info("Остановка " + site.getUrl());
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -73,6 +71,8 @@ public class SiteIndexing extends Thread {
         siteRepositoryService.save(site);
         AllLinks allLinks = new AllLinks(site.getUrl());
         allLinks.builtAllLinks(this);
+        log.info("Карта сайта готова: " + site.getUrl());
+        log.info("Начало индексации " + site.getUrl());
         List<String> allSiteUrls = allLinks.getAllLinks();
         for (String url : allSiteUrls) {
             runOneSiteIndexing(url);
@@ -117,7 +117,7 @@ public class SiteIndexing extends Thread {
         }
         if (LinkPull.isInterrupted) {
             site.setStatus(Status.FAILED);
-           throw new InterruptedException("Остановка!");
+            throw new InterruptedException("Остановка!");
         } else {
             site.setStatus(Status.INDEXED);
         }
@@ -134,9 +134,9 @@ public class SiteIndexing extends Thread {
         log.info("getSearchPage=" + url + ", siteId=" + siteId);
         Page page = new Page();
         Connection.Response response = Jsoup.connect(url)
-                .userAgent(properties.getAgent())
-                .referrer("https://www.google.com")
-                .execute();
+            .userAgent(properties.getAgent())
+            .referrer("https://www.google.com")
+            .execute();
         String content = response.body();
         int code = response.statusCode();
         page.setCode(code);
@@ -170,9 +170,9 @@ public class SiteIndexing extends Thread {
             String lemmaName = lemma.getKey();
             List<Lemma> lemma1 = lemmaRepositoryService.getLemma(lemmaName);
             Lemma lemma2 = lemma1.stream().
-                    filter(lemma3 -> lemma3.getSiteId() == siteId).
-                    findFirst().
-                    orElse(null);
+                filter(lemma3 -> lemma3.getSiteId() == siteId).
+                findFirst().
+                orElse(null);
             if (lemma2 == null) {
                 Lemma newLemma = new Lemma(lemmaName, 1, siteId);
                 lemmaRepositoryService.save(newLemma);

@@ -13,14 +13,16 @@ config:
   agent: Mozilla/5.0 (Windows; U; WindowsNT 5.1; en-US; rv1.8.1.6) Gecko/20070725 Firefox/2.0.0.6
   webinterface: /admin
   site:
-    - url: https://sangria31.ru
-      name: што
-    - url: http://www.playback.ru/
-      name: Тел
-    - url: http://astudio.store
-      name: шторы
-    - url: http://xn---31-5cdk9a0a5ba.xn--p1ai
-      name: лестнецы
-    - url: https://amelie-shtory.ru
-      name: СТОЛЯРНОЕ ПРОИЗВОДСТВО
+#    - url: https://sangria31.ru
+#      name: што
+#    - url: http://www.playback.ru/
+#      name: Тел
+#    - url: http://astudio.store
+#      name: шторы
+#    - url: http://xn---31-5cdk9a0a5ba.xn--p1ai
+#      name: лестнецы
+#    - url: https://amelie-shtory.ru
+#      name: СТОЛЯРНОЕ ПРОИЗВОДСТВО#
+    - url: https://www.svetlovka.ru/
+      name: Светловка
 
