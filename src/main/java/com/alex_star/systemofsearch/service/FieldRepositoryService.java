@@ -3,7 +3,6 @@ package com.alex_star.systemofsearch.service;
 import com.alex_star.systemofsearch.model.Field;
 import com.alex_star.systemofsearch.repository.FieldRepository;
 import org.springframework.stereotype.Service;
-
 import java.util.ArrayList;
 import java.util.List;
 

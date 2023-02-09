@@ -6,7 +6,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface IndexRepository extends CrudRepository<Indexing, Integer> {
+public interface IndexingRepository extends CrudRepository<Indexing, Integer> {
 
   List<Indexing> findByLemmaId(int lemmaId);
 

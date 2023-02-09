@@ -20,25 +20,25 @@ public class SystemOfSearch {
 
   private final Lemmatizer lemmatizer;
   private final SiteRepositoryService siteRepositoryService;
-  private final IndexRepositoryService indexRepositoryService;
+  private final IndexingRepositoryService indexingRepositoryService;
   private final LemmaRepositoryService lemmaRepositoryService;
   private final LemmaRepository lemmaRepository;
   private final PageRepositoryService pageRepositoryService;
 
 
   public SystemOfSearch(SiteRepositoryService siteRepositoryService,
-      IndexRepositoryService indexRepositoryService,
+      IndexingRepositoryService indexingRepositoryService,
       LemmaRepositoryService lemmaRepositoryService, LemmaRepository lemmaRepository,
       PageRepositoryService pageRepositoryService) {
     this.lemmaRepository = lemmaRepository;
     this.lemmatizer = new Lemmatizer();
     this.siteRepositoryService = siteRepositoryService;
-    this.indexRepositoryService = indexRepositoryService;
+    this.indexingRepositoryService = indexingRepositoryService;
     this.lemmaRepositoryService = lemmaRepositoryService;
     this.pageRepositoryService = pageRepositoryService;
   }
 
-  public ArrayList<Integer> initialPageIds = new ArrayList<>();
+  public List<Integer> initialPageIds = new ArrayList<>();
 
 
   public SearchResponse searchResult(Request request, String url, int offset, int limit) {
@@ -49,7 +49,7 @@ public class SystemOfSearch {
       if (site != null) {
         lemmaRepositoryService.sortLemmasByFrequency(lemmas, site.getId());
       }
-      LinkedHashMap<String, Integer> sortedLemmas = sortingLemmasByFrequency(lemmas);
+      Map<String, Integer> sortedLemmas = sortingLemmasByFrequency(lemmas);
       filterPagesByLemmas(sortedLemmas);
       List<RankResult> ranksList = buildRankResults(site, lemmas);
       if (ranksList.isEmpty()) {
@@ -58,7 +58,7 @@ public class SystemOfSearch {
       sortResults(ranksList);
       int count = ranksList.size();
       ranksList = limitRankResults(ranksList, limit, offset);
-      return buildSearchResponse(ranksList, request,count);
+      return buildSearchResponse(ranksList, request, count);
     } catch (SQLException throwables) {
       throwables.printStackTrace();
     }
@@ -75,10 +75,7 @@ private List<RankResult> buildRankResults(Site site,HashMap<String, Integer> lem
       ranksList.addAll(ranks);
     }
   } else {
-    int siteId = 0;
-    if (site != null) {
-      siteId = site.getId();
-    }
+    int siteId = site.getId();
     ranksList = calculateRanks(lemmas.keySet(), siteId);
   }
   return ranksList;
@@ -92,11 +89,9 @@ private List<RankResult> buildRankResults(Site site,HashMap<String, Integer> lem
     return  limited;
   }
 
-  private List<RankResult> sortResults(List<RankResult> ranksList)
-  {
+  private void sortResults(List<RankResult> ranksList) {
     ranksList.sort(Comparator.comparingDouble(RankResult::getSumRanking));
     Collections.reverse(ranksList);
-    return ranksList;
   }
 
   private SearchResponse buildSearchResponse(List<RankResult> ranksList, Request request,int count) {
@@ -153,11 +148,11 @@ private List<RankResult> buildRankResults(Site site,HashMap<String, Integer> lem
   }
 
 
-  public void filterPagesByLemmas(LinkedHashMap<String, Integer> sorted) throws SQLException {
+  public void filterPagesByLemmas(Map<String, Integer> sorted) throws SQLException {
     for (Map.Entry<String, Integer> entry : sorted.entrySet()) {
       ArrayList<Integer> currentPageIds = new ArrayList<>();
       List<Lemma> lemma = lemmaRepositoryService.getLemma(entry.getKey());
-      List<Indexing> res = indexRepositoryService.getAllIndexingByLemmaId(lemma.get(0).getId());
+      List<Indexing> res = indexingRepositoryService.getAllIndexingByLemmaId(lemma.get(0).getId());
       for (Indexing item : res) {
         currentPageIds.add(item.getPageId());
       }
@@ -169,13 +164,13 @@ private List<RankResult> buildRankResults(Site site,HashMap<String, Integer> lem
     }
   }
 
-  public LinkedHashMap<String, Integer> sortingLemmasByFrequency(HashMap<String, Integer> lemmas) {
+  public Map<String, Integer> sortingLemmasByFrequency(Map<String, Integer> lemmas) {
     LinkedHashMap<String, Integer> sorted = new LinkedHashMap<>(MapUtil.sortByValue(lemmas));
     for (String key : sorted.keySet()) {
       List<Lemma> lemma = lemmaRepositoryService.getLemma(key);
       if (lemma != null && !lemma.isEmpty()) {
         for (Lemma lemmaKey : lemma) {
-          List<Indexing> initialResultSet = indexRepositoryService.getAllIndexingByLemmaId(
+          List<Indexing> initialResultSet = indexingRepositoryService.getAllIndexingByLemmaId(
               lemmaKey.getId());
           for (Indexing indexing : initialResultSet) {
             int element = indexing.getPageId();
@@ -266,7 +261,7 @@ private List<RankResult> buildRankResults(Site site,HashMap<String, Integer> lem
           .append("</b>");
       int snippetMaxStringSize = 30;
       int snippetSymbolsCount = 90;
-      if (!((string.length() - to) < snippetMaxStringSize)) {
+      if ((string.length() - to) >= snippetMaxStringSize) {
         builder1.append(string, to + offset, string.indexOf(" ", to
             + offset + snippetSymbolsCount)).append("... ");
       }

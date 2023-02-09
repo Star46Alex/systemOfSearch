@@ -21,25 +21,25 @@ import java.util.concurrent.TimeUnit;
 @Service
 public class Index {
 
-  private final static Log log = LogFactory.getLog(Index.class);
+  private static final Log log = LogFactory.getLog(Index.class);
   private final Properties properties;
   private final FieldRepositoryService fieldRepositoryService;
   private final SiteRepositoryService siteRepositoryService;
-  private final IndexRepositoryService indexRepositoryService;
+  private final IndexingRepositoryService indexingRepositoryService;
   private final PageRepositoryService pageRepositoryService;
   private final LemmaRepositoryService lemmaRepositoryService;
-  private List<SiteIndexing> siteIndexings;
+  private final List<SiteIndexing> siteIndexings;
 
   public Index(Properties properties,
       FieldRepositoryService fieldRepositoryService,
       SiteRepositoryService siteRepositoryService,
-      IndexRepositoryService indexRepositoryService,
+      IndexingRepositoryService indexingRepositoryService,
       PageRepositoryService pageRepositoryService,
       LemmaRepositoryService lemmaRepositoryService) {
     this.properties = properties;
     this.fieldRepositoryService = fieldRepositoryService;
     this.siteRepositoryService = siteRepositoryService;
-    this.indexRepositoryService = indexRepositoryService;
+    this.indexingRepositoryService = indexingRepositoryService;
     this.pageRepositoryService = pageRepositoryService;
     this.lemmaRepositoryService = lemmaRepositoryService;
     this.siteIndexings = new Vector<>();
@@ -84,7 +84,7 @@ public class Index {
           properties,
           fieldRepositoryService,
           siteRepositoryService,
-          indexRepositoryService,
+          indexingRepositoryService,
           pageRepositoryService,
           lemmaRepositoryService,
           false);
@@ -114,7 +114,7 @@ public class Index {
           properties,
           fieldRepositoryService,
           siteRepositoryService,
-          indexRepositoryService,
+          indexingRepositoryService,
           pageRepositoryService,
           lemmaRepositoryService,
           true);
@@ -128,7 +128,7 @@ public class Index {
             properties,
             fieldRepositoryService,
             siteRepositoryService,
-            indexRepositoryService,
+            indexingRepositoryService,
             pageRepositoryService,
             lemmaRepositoryService,
             true);
@@ -146,7 +146,6 @@ public class Index {
     if (executor.getActiveCount() == 0) {
       return false;
     }
-    //LinkPull.isInterrupted = true;
     for(SiteIndexing si:siteIndexings)
     {
       si.interrupt();

@@ -1,6 +1,6 @@
 package com.alex_star.systemofsearch.siteCrawlingSystem;
 
-import com.alex_star.systemofsearch.util.SiteIndexing;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ForkJoinPool;
@@ -12,7 +12,7 @@ public class AllLinks {
   private List<String> allLinks;
   private LinkPull linkPull;
 
-  public void builtAllLinks(SiteIndexing siteIndexing) {
+  public void builtAllLinks() {
     linkPull = new LinkPull(url, url);
     String text = new ForkJoinPool().invoke(linkPull);
     allLinks = toList(text);

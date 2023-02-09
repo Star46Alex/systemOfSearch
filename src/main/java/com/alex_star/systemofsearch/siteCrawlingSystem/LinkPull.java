@@ -1,6 +1,5 @@
 package com.alex_star.systemofsearch.siteCrawlingSystem;
 
-import com.alex_star.systemofsearch.util.SiteIndexing;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -14,11 +13,10 @@ import java.util.concurrent.RecursiveTask;
 public class LinkPull extends RecursiveTask<String> {
 
   private final String url;
-  private String content = "";
   private final String startUrl;
   private boolean isInterrupted;
-  public static final HashSet<String> allLinks = new HashSet<>();
-  private Set<LinkPull> subTask = new HashSet<>();
+  public static final Set<String> allLinks = new HashSet<>();
+  private final Set<LinkPull> subTask = new HashSet<>();
 
   public LinkPull(String url, String startUrl) {
     this.url = url.trim();
@@ -38,7 +36,6 @@ public class LinkPull extends RecursiveTask<String> {
       Document doc = receiveDoc();
       if (doc != null) {
         findChildrenAndRunSubTasks(doc, subTask);
-        // calculateRank(doc);
         for (LinkPull link : subTask) {
           sb.append(link.join());
         }
@@ -68,7 +65,6 @@ public class LinkPull extends RecursiveTask<String> {
           .followRedirects(false)
           .get();
     } catch (IOException | InterruptedException e) {
-      System.out.println(url);
       e.printStackTrace();
     }
     return null;
@@ -77,8 +73,6 @@ public class LinkPull extends RecursiveTask<String> {
 
   private void findChildrenAndRunSubTasks(Document doc, Set<LinkPull> subTask) {
     Elements elements;
-    content = doc.html();
-    content = content.replaceAll("'", "&#39;");
     elements = doc.select("a");
     for (Element el : elements) {
       String attr = el.attr("abs:href").toLowerCase();

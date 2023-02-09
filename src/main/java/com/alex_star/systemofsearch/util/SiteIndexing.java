@@ -5,7 +5,6 @@ import com.alex_star.systemofsearch.lemmatizer.Lemmatizer;
 import com.alex_star.systemofsearch.model.*;
 import com.alex_star.systemofsearch.service.*;
 import com.alex_star.systemofsearch.siteCrawlingSystem.AllLinks;
-import com.alex_star.systemofsearch.siteCrawlingSystem.LinkPull;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jsoup.Connection;
@@ -23,7 +22,7 @@ public class SiteIndexing extends Thread {
     private final Properties properties;
     private final FieldRepositoryService fieldRepositoryService;
     private final SiteRepositoryService siteRepositoryService;
-    private final IndexRepositoryService indexRepositoryService;
+    private final IndexingRepositoryService indexingRepositoryService;
     private final PageRepositoryService pageRepositoryService;
     private final LemmaRepositoryService lemmaRepositoryService;
     private final boolean allSite;
@@ -33,7 +32,7 @@ public class SiteIndexing extends Thread {
         Site site, Properties properties,
         FieldRepositoryService fieldRepositoryService,
         SiteRepositoryService siteRepositoryService,
-        IndexRepositoryService indexRepositoryService,
+        IndexingRepositoryService indexingRepositoryService,
         PageRepositoryService pageRepositoryService,
         LemmaRepositoryService lemmaRepositoryService,
         boolean allSite) {
@@ -43,16 +42,14 @@ public class SiteIndexing extends Thread {
         this.properties = properties;
         this.fieldRepositoryService = fieldRepositoryService;
         this.siteRepositoryService = siteRepositoryService;
-        this.indexRepositoryService = indexRepositoryService;
+        this.indexingRepositoryService = indexingRepositoryService;
         this.pageRepositoryService = pageRepositoryService;
         this.lemmaRepositoryService = lemmaRepositoryService;
     }
 
-
     @Override
     public void run() {
         try {
-
             log.info("Собираем карту сайта " + site.getUrl());
             if (allSite) {
                 runAllIndexing();
@@ -77,7 +74,7 @@ public class SiteIndexing extends Thread {
         site.setStatusTime(new Date());
         siteRepositoryService.save(site);
         allLinks = new AllLinks(site.getUrl());
-        allLinks.builtAllLinks(this);
+        allLinks.builtAllLinks();
         log.info("Карта сайта готова: " + site.getUrl());
         log.info("Начало индексации " + site.getUrl());
         List<String> allSiteUrls = allLinks.getAllLinks();
@@ -85,6 +82,7 @@ public class SiteIndexing extends Thread {
             runOneSiteIndexing(url);
         }
     }
+
 
     public void runOneSiteIndexing(String searchUrl) throws InterruptedException {
         site.setStatus(Status.INDEXING);
@@ -218,7 +216,7 @@ public class SiteIndexing extends Thread {
                 if (l.getSiteId() == siteId) {
                     int lemmaId = l.getId();
                     Indexing indexing = new Indexing(pathId, lemmaId, lemma.getValue());
-                    indexRepositoryService.save(indexing);
+                    indexingRepositoryService.save(indexing);
                 }
             }
         }

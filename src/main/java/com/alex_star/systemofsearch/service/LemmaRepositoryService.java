@@ -6,7 +6,6 @@ import org.springframework.stereotype.Service;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -29,12 +28,11 @@ public class LemmaRepositoryService {
       if (lemmas == null) {
         lemmas = new ArrayList<>();
       }
-      if (lemmas.size() == 0) {
+      if (lemmas.isEmpty()) {
         lemmas.add(new Lemma());
       }
 
     } catch (Exception e) {
-      System.out.println(lemmaName);
       e.printStackTrace();
     }
     return lemmas;
@@ -56,7 +54,7 @@ public class LemmaRepositoryService {
   }
 
 
-  public void sortLemmasByFrequency(HashMap<String, Integer> lemmas, int siteId)
+  public void sortLemmasByFrequency(Map<String, Integer> lemmas, int siteId)
       throws SQLException {
     for (Map.Entry<String, Integer> entry : lemmas.entrySet()) {
       String key = entry.getKey();
