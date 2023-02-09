@@ -5,15 +5,16 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ForkJoinPool;
 import java.util.stream.Collectors;
-import static com.alex_star.systemofsearch.siteCrawlingSystem.LinkPull.isInterrupted;
 
 public class AllLinks {
 
   private final String url;
   private List<String> allLinks;
+  private LinkPull linkPull;
 
   public void builtAllLinks(SiteIndexing siteIndexing) {
-    String text = new ForkJoinPool().invoke(new LinkPull(url, url, isInterrupted, siteIndexing));
+    linkPull = new LinkPull(url, url);
+    String text = new ForkJoinPool().invoke(linkPull);
     allLinks = toList(text);
   }
 
@@ -28,5 +29,10 @@ public class AllLinks {
 
   public AllLinks(String url) {
     this.url = url;
+  }
+
+  public void interrupt()
+  {
+    linkPull.interrupt();
   }
 }

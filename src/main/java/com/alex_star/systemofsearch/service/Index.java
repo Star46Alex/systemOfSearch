@@ -6,6 +6,7 @@ import com.alex_star.systemofsearch.model.Site;
 import com.alex_star.systemofsearch.model.Status;
 import com.alex_star.systemofsearch.siteCrawlingSystem.LinkPull;
 import com.alex_star.systemofsearch.util.SiteIndexing;
+import java.util.Vector;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.stereotype.Service;
@@ -27,6 +28,7 @@ public class Index {
   private final IndexRepositoryService indexRepositoryService;
   private final PageRepositoryService pageRepositoryService;
   private final LemmaRepositoryService lemmaRepositoryService;
+  private List<SiteIndexing> siteIndexings;
 
   public Index(Properties properties,
       FieldRepositoryService fieldRepositoryService,
@@ -40,6 +42,7 @@ public class Index {
     this.indexRepositoryService = indexRepositoryService;
     this.pageRepositoryService = pageRepositoryService;
     this.lemmaRepositoryService = lemmaRepositoryService;
+    this.siteIndexings = new Vector<>();
   }
 
   ThreadPoolExecutor executor;
@@ -103,11 +106,10 @@ public class Index {
   }
 
   private boolean startSiteIndexing(Site site) {
-    LinkPull.isInterrupted = false;
     Site site1 = siteRepositoryService.getSite(site.getUrl());
     if (site1 == null) {
       siteRepositoryService.save(site);
-      SiteIndexing indexing = new SiteIndexing(
+      SiteIndexing siteIndexing = new SiteIndexing(
           siteRepositoryService.getSite(site.getUrl()),
           properties,
           fieldRepositoryService,
@@ -116,11 +118,12 @@ public class Index {
           pageRepositoryService,
           lemmaRepositoryService,
           true);
-      executor.execute(indexing);
+      executor.execute(siteIndexing);
+      siteIndexings.add(siteIndexing);
       return true;
     } else {
       if (!site1.getStatus().equals(Status.INDEXING)) {
-        SiteIndexing indexing = new SiteIndexing(
+        SiteIndexing  siteIndexing= new SiteIndexing(
             siteRepositoryService.getSite(site.getUrl()),
             properties,
             fieldRepositoryService,
@@ -129,7 +132,8 @@ public class Index {
             pageRepositoryService,
             lemmaRepositoryService,
             true);
-        executor.execute(indexing);
+        executor.execute(siteIndexing);
+        siteIndexings.add(siteIndexing);
         return true;
       } else {
         return false;
@@ -142,7 +146,11 @@ public class Index {
     if (executor.getActiveCount() == 0) {
       return false;
     }
-    LinkPull.isInterrupted = true;
+    //LinkPull.isInterrupted = true;
+    for(SiteIndexing si:siteIndexings)
+    {
+      si.interrupt();
+    }
     executor.shutdownNow();
     try {
       isThreadAlive = executor.awaitTermination(1, TimeUnit.MINUTES);

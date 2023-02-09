@@ -16,16 +16,14 @@ public class LinkPull extends RecursiveTask<String> {
   private final String url;
   private String content = "";
   private final String startUrl;
-  public static boolean isInterrupted;
-  private final SiteIndexing siteIndexing;
+  private boolean isInterrupted;
   public static final HashSet<String> allLinks = new HashSet<>();
+  private Set<LinkPull> subTask = new HashSet<>();
 
-
-  public LinkPull(String url, String startUrl, boolean isInterrupted, SiteIndexing siteIndexing) {
+  public LinkPull(String url, String startUrl) {
     this.url = url.trim();
     this.startUrl = startUrl.trim();
-    LinkPull.isInterrupted = isInterrupted;
-    this.siteIndexing = siteIndexing;
+    isInterrupted = false;
   }
 
 
@@ -35,7 +33,6 @@ public class LinkPull extends RecursiveTask<String> {
       return "";
     }
     StringBuilder sb = new StringBuilder(url + "\n");
-    Set<LinkPull> subTask = new HashSet<>();
     try {
       Thread.sleep(200);
       Document doc = receiveDoc();
@@ -51,6 +48,13 @@ public class LinkPull extends RecursiveTask<String> {
       return "";
     }
     return sb.toString();
+  }
+
+  public void interrupt() {
+    isInterrupted = true;
+    for (var child : subTask) {
+      child.interrupt();
+    }
   }
 
   private Document receiveDoc() {
@@ -93,7 +97,7 @@ public class LinkPull extends RecursiveTask<String> {
           && !attr.contains(".xlsx")
           && !attr.contains(".xls")) {
         allLinks.add(attr);
-        LinkPull linkExecutor = new LinkPull(attr, startUrl, isInterrupted, siteIndexing);
+        LinkPull linkExecutor = new LinkPull(attr, startUrl);
         linkExecutor.fork();
         subTask.add(linkExecutor);
       }

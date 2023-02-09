@@ -27,6 +27,7 @@ public class SiteIndexing extends Thread {
     private final PageRepositoryService pageRepositoryService;
     private final LemmaRepositoryService lemmaRepositoryService;
     private final boolean allSite;
+    private AllLinks allLinks;
 
     public SiteIndexing(
         Site site, Properties properties,
@@ -65,11 +66,17 @@ public class SiteIndexing extends Thread {
         }
     }
 
+    @Override
+    public void interrupt() {
+        allLinks.interrupt();
+        super.interrupt();
+    }
+
     public void runAllIndexing() throws InterruptedException {
         site.setStatus(Status.INDEXING);
         site.setStatusTime(new Date());
         siteRepositoryService.save(site);
-        AllLinks allLinks = new AllLinks(site.getUrl());
+        allLinks = new AllLinks(site.getUrl());
         allLinks.builtAllLinks(this);
         log.info("Карта сайта готова: " + site.getUrl());
         log.info("Начало индексации " + site.getUrl());
@@ -115,7 +122,7 @@ public class SiteIndexing extends Thread {
         } finally {
             siteRepositoryService.save(site);
         }
-        if (LinkPull.isInterrupted) {
+        if (isInterrupted()) {
             site.setStatus(Status.FAILED);
             throw new InterruptedException("Остановка!");
         } else {
