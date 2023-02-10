@@ -166,18 +166,9 @@ private List<RankResult> buildRankResults(Site site,HashMap<String, Integer> lem
   public Map<String, Integer> sortingLemmasByFrequency(Map<String, Integer> lemmas) {
     LinkedHashMap<String, Integer> sorted = new LinkedHashMap<>(MapUtil.sortByValue(lemmas));
     for (String key : sorted.keySet()) {
-      List<Lemma> lemma = lemmaService.getLemma(key);
-      if (lemma != null && !lemma.isEmpty()) {
-        for (Lemma lemmaKey : lemma) {
-          List<Indexing> initialResultSet = indexingService.getAllIndexingByLemmaId(
-              lemmaKey.getId());
-          for (Indexing indexing : initialResultSet) {
-            int element = indexing.getPageId();
-            if (!initialPageIds.contains(element)) {
-              initialPageIds.add(element);
-            }
-          }
-        }
+      List<Lemma> lemmaList = lemmaService.getLemma(key);
+      if (lemmaList != null && !lemmaList.isEmpty()) {
+        fillInitialPages(lemmaList);
       }
     }
     return sorted;
@@ -266,5 +257,22 @@ private List<RankResult> buildRankResults(Site site,HashMap<String, Integer> lem
       }
     }
     return builder1.toString();
+  }
+  private void fillInitialPagesIds( List<Indexing> initialResultSet){
+    for (Indexing indexing : initialResultSet) {
+      int element = indexing.getPageId();
+      if (!initialPageIds.contains(element)) {
+        initialPageIds.add(element);
+      }
+    }
+  }
+
+  private void fillInitialPages(List<Lemma> lemmaList){
+    for (Lemma lemmaKey : lemmaList) {
+      List<Indexing> initialResultSet = indexingService.getAllIndexingByLemmaId(
+          lemmaKey.getId());
+      fillInitialPagesIds(initialResultSet);
+    }
+
   }
 }

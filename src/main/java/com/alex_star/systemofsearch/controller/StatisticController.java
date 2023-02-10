@@ -1,4 +1,4 @@
-package com.alex_star.systemofsearch.controllers;
+package com.alex_star.systemofsearch.controller;
 
 import com.alex_star.systemofsearch.dto.response.StatisticResponse;
 import com.alex_star.systemofsearch.service.web.Statistic;

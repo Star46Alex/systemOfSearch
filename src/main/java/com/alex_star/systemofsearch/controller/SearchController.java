@@ -1,4 +1,4 @@
-package com.alex_star.systemofsearch.controllers;
+package com.alex_star.systemofsearch.controller;
 
 import com.alex_star.systemofsearch.dto.response.ResponseService;
 import com.alex_star.systemofsearch.model.Request;
