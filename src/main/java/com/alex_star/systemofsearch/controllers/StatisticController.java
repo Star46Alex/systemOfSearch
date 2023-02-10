@@ -1,7 +1,7 @@
 package com.alex_star.systemofsearch.controllers;
 
 import com.alex_star.systemofsearch.dto.response.StatisticResponse;
-import com.alex_star.systemofsearch.service.Statistic;
+import com.alex_star.systemofsearch.service.web.Statistic;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;

@@ -11,12 +11,12 @@ import java.util.Map;
 
 @Service
 
-public class LemmaRepositoryService {
+public class LemmaService {
 
   private final LemmaRepository lemmaRepository;
 
 
-  public LemmaRepositoryService(LemmaRepository lemmaRepository) {
+  public LemmaService(LemmaRepository lemmaRepository) {
     this.lemmaRepository = lemmaRepository;
   }
 

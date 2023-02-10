@@ -3,6 +3,7 @@ package com.alex_star.systemofsearch.util;
 import com.alex_star.systemofsearch.config.Properties;
 import com.alex_star.systemofsearch.lemmatizer.Lemmatizer;
 import com.alex_star.systemofsearch.model.*;
+import com.alex_star.systemofsearch.repository.IndexingRepository;
 import com.alex_star.systemofsearch.service.*;
 import com.alex_star.systemofsearch.siteCrawlingSystem.AllLinks;
 import org.apache.commons.logging.Log;
@@ -20,31 +21,30 @@ public class SiteIndexing extends Thread {
     private final Lemmatizer lemmatizer;
     private final Site site;
     private final Properties properties;
-    private final FieldRepositoryService fieldRepositoryService;
-    private final SiteRepositoryService siteRepositoryService;
-    private final IndexingRepositoryService indexingRepositoryService;
-    private final PageRepositoryService pageRepositoryService;
-    private final LemmaRepositoryService lemmaRepositoryService;
+    private final FieldService fieldService;
+    private final SiteService siteService;
+    private final IndexingRepository indexingRepository;
+    private final PageService pageService;
+    private final LemmaService lemmaService;
     private final boolean allSite;
     private AllLinks allLinks;
 
     public SiteIndexing(
         Site site, Properties properties,
-        FieldRepositoryService fieldRepositoryService,
-        SiteRepositoryService siteRepositoryService,
-        IndexingRepositoryService indexingRepositoryService,
-        PageRepositoryService pageRepositoryService,
-        LemmaRepositoryService lemmaRepositoryService,
+        FieldService fieldService,
+        SiteService siteService,
+        IndexingRepository indexingRepository, PageService pageService,
+        LemmaService lemmaService,
         boolean allSite) {
         this.site = site;
+        this.indexingRepository = indexingRepository;
         this.allSite = allSite;
         this.lemmatizer = new Lemmatizer();
         this.properties = properties;
-        this.fieldRepositoryService = fieldRepositoryService;
-        this.siteRepositoryService = siteRepositoryService;
-        this.indexingRepositoryService = indexingRepositoryService;
-        this.pageRepositoryService = pageRepositoryService;
-        this.lemmaRepositoryService = lemmaRepositoryService;
+        this.fieldService = fieldService;
+        this.siteService = siteService;
+        this.pageService = pageService;
+        this.lemmaService = lemmaService;
     }
 
     @Override
@@ -72,7 +72,7 @@ public class SiteIndexing extends Thread {
     public void runAllIndexing() throws InterruptedException {
         site.setStatus(Status.INDEXING);
         site.setStatusTime(new Date());
-        siteRepositoryService.save(site);
+        siteService.save(site);
         allLinks = new AllLinks(site.getUrl());
         allLinks.builtAllLinks();
         log.info("Карта сайта готова: " + site.getUrl());
@@ -87,11 +87,11 @@ public class SiteIndexing extends Thread {
     public void runOneSiteIndexing(String searchUrl) throws InterruptedException {
         site.setStatus(Status.INDEXING);
         site.setStatusTime(new Date());
-        siteRepositoryService.save(site);
+        siteService.save(site);
         List<Field> fieldList = getFieldListFromDB();
         try {
             Page page = getSearchPage(searchUrl, site.getId());
-            Page checkPage = pageRepositoryService.getPage(searchUrl);
+            Page checkPage = pageService.getPage(searchUrl);
             if (checkPage != null) {
                 page.setId(checkPage.getId());
             }
@@ -118,7 +118,7 @@ public class SiteIndexing extends Thread {
         } catch (Exception ex) {
             ex.printStackTrace();
         } finally {
-            siteRepositoryService.save(site);
+            siteService.save(site);
         }
         if (isInterrupted()) {
             site.setStatus(Status.FAILED);
@@ -127,12 +127,12 @@ public class SiteIndexing extends Thread {
             site.setStatus(Status.INDEXED);
         }
 
-        siteRepositoryService.save(site);
+        siteService.save(site);
     }
 
 
     private void pageToDb(Page page) {
-        pageRepositoryService.save(page);
+        pageService.save(page);
     }
 
     private Page getSearchPage(String url, int siteId) throws IOException {
@@ -153,7 +153,7 @@ public class SiteIndexing extends Thread {
 
     private List<Field> getFieldListFromDB() {
         List<Field> list = new ArrayList<>();
-        Iterable<Field> iterable = fieldRepositoryService.getAllField();
+        Iterable<Field> iterable = fieldService.getAllField();
         iterable.forEach(list::add);
         return list;
     }
@@ -173,18 +173,18 @@ public class SiteIndexing extends Thread {
     private void lemmaToDB(HashMap<String, Integer> lemmaMap, int siteId) {
         for (Map.Entry<String, Integer> lemma : lemmaMap.entrySet()) {
             String lemmaName = lemma.getKey();
-            List<Lemma> lemma1 = lemmaRepositoryService.getLemma(lemmaName);
+            List<Lemma> lemma1 = lemmaService.getLemma(lemmaName);
             Lemma lemma2 = lemma1.stream().
                 filter(lemma3 -> lemma3.getSiteId() == siteId).
                 findFirst().
                 orElse(null);
             if (lemma2 == null) {
                 Lemma newLemma = new Lemma(lemmaName, 1, siteId);
-                lemmaRepositoryService.save(newLemma);
+                lemmaService.save(newLemma);
             } else {
                 int count = lemma2.getFrequency();
                 lemma2.setFrequency(++count);
-                lemmaRepositoryService.save(lemma2);
+                lemmaService.save(lemma2);
             }
         }
     }
@@ -205,18 +205,18 @@ public class SiteIndexing extends Thread {
     }
 
     private void indexingToDb(HashMap<String, Float> map, String path) {
-        Page page = pageRepositoryService.getPage(path);
+        Page page = pageService.getPage(path);
         int pathId = page.getId();
         int siteId = page.getSiteId();
         for (Map.Entry<String, Float> lemma : map.entrySet()) {
 
             String lemmaName = lemma.getKey();
-            List<Lemma> lemma1 = lemmaRepositoryService.getLemma(lemmaName);
+            List<Lemma> lemma1 = lemmaService.getLemma(lemmaName);
             for (Lemma l : lemma1) {
                 if (l.getSiteId() == siteId) {
                     int lemmaId = l.getId();
                     Indexing indexing = new Indexing(pathId, lemmaId, lemma.getValue());
-                    indexingRepositoryService.save(indexing);
+                    indexingRepository.save(indexing);
                 }
             }
         }

@@ -2,7 +2,7 @@ package com.alex_star.systemofsearch.controllers;
 
 import com.alex_star.systemofsearch.dto.response.ResponseService;
 import com.alex_star.systemofsearch.model.Request;
-import com.alex_star.systemofsearch.service.SystemOfSearchService;
+import com.alex_star.systemofsearch.service.web.SearchControlService;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.http.ResponseEntity;
@@ -15,10 +15,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 @Controller
 public class SearchController {
 
-  private final SystemOfSearchService search;
+  private final SearchControlService search;
   private static final Log log = LogFactory.getLog(SearchController.class);
 
-  public SearchController(SystemOfSearchService search) {
+  public SearchController(SearchControlService search) {
     this.search = search;
   }
 

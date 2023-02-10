@@ -7,11 +7,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
-public class FieldRepositoryService {
+public class FieldService {
 
   private final FieldRepository fieldRepository;
 
-  public FieldRepositoryService(FieldRepository fieldRepository) {
+  public FieldService(FieldRepository fieldRepository) {
     this.fieldRepository = fieldRepository;
   }
 

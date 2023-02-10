@@ -1,79 +1,203 @@
 package com.alex_star.systemofsearch.service;
 
-import com.alex_star.systemofsearch.dto.response.FalseResponse;
-import com.alex_star.systemofsearch.dto.response.ResponseService;
-import com.alex_star.systemofsearch.dto.response.TrueResponse;
+import com.alex_star.systemofsearch.config.Properties;
+import com.alex_star.systemofsearch.model.Field;
+import com.alex_star.systemofsearch.model.Indexing;
+import com.alex_star.systemofsearch.model.Site;
+import com.alex_star.systemofsearch.model.Status;
+import com.alex_star.systemofsearch.repository.IndexingRepository;
+import com.alex_star.systemofsearch.siteCrawlingSystem.LinkPull;
+import com.alex_star.systemofsearch.util.SiteIndexing;
+import java.util.Vector;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.stereotype.Service;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 @Service
 public class IndexingService {
 
-  private final Index index;
-
   private static final Log log = LogFactory.getLog(IndexingService.class);
+  private final Properties properties;
+  private final FieldService fieldService;
+  private final SiteService siteService;
+  private final IndexingRepository indexingRepository;
+  private final PageService pageService;
+  private final LemmaService lemmaService;
+  private final List<SiteIndexing> siteIndexings;
 
-  public IndexingService(Index index) {
-    this.index = index;
+  public IndexingService(Properties properties,
+      FieldService fieldService,
+      SiteService siteService,
+      IndexingRepository indexingRepository, PageService pageService,
+      LemmaService lemmaService) {
+    this.properties = properties;
+    this.fieldService = fieldService;
+    this.siteService = siteService;
+    this.indexingRepository = indexingRepository;
+    this.pageService = pageService;
+    this.lemmaService = lemmaService;
+    this.siteIndexings = new Vector<>();
+  }
+
+  ThreadPoolExecutor executor;
+
+  public boolean IndexAllSites() throws InterruptedException {
+    LinkPull.allLinks.clear();
+    List<Site> siteList = getSiteList();
+    executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(siteList.size());
+    fieldInit();
+    boolean isIndexing;
+    for (Site site : siteList) {
+      isIndexing = startSiteIndexing(site);
+      if (!isIndexing) {
+        stopSiteIndexing();
+        return false;
+      }
+    }
+    return true;
+  }
+
+  public String checkedSiteIndexing(String url) throws InterruptedException {
+    List<Site> siteList = siteService.getAllSites();
+    String baseUrl = "";
+    for (Site site : siteList) {
+      if (site.getStatus() != Status.INDEXED) {
+        return "false";
+      }
+      if (url.contains(site.getUrl())) {
+        baseUrl = site.getUrl();
+      }
+    }
+    if (baseUrl.isEmpty()) {
+      return "not found";
+    } else {
+      Site site = siteService.getSite(baseUrl);
+      site.setUrl(url);
+      SiteIndexing indexing = new SiteIndexing(
+          site,
+          properties,
+          fieldService,
+          siteService,
+          indexingRepository,
+          pageService,
+          lemmaService,
+          false);
+      executor.execute(indexing);
+      site.setUrl(baseUrl);
+      siteService.save(site);
+      return "true";
+    }
   }
 
 
-  public ResponseService startIndexingAll() {
-    ResponseService response;
-    boolean indexing;
+  private void fieldInit() {
+    Field fieldTitle = new Field("title", "title", 1.0f);
+    Field fieldBody = new Field("body", "body", 0.8f);
+    if (fieldService.getFieldByName("title") == null) {
+      fieldService.save(fieldTitle);
+      fieldService.save(fieldBody);
+    }
+  }
+
+  private boolean startSiteIndexing(Site site) {
+    Site site1 = siteService.getSite(site.getUrl());
+    if (site1 == null) {
+      siteService.save(site);
+      SiteIndexing siteIndexing = new SiteIndexing(
+          siteService.getSite(site.getUrl()),
+          properties,
+          fieldService,
+          siteService,
+          indexingRepository,
+          pageService,
+          lemmaService,
+          true);
+      executor.execute(siteIndexing);
+      siteIndexings.add(siteIndexing);
+      return true;
+    } else {
+      if (!site1.getStatus().equals(Status.INDEXING)) {
+        SiteIndexing  siteIndexing= new SiteIndexing(
+            siteService.getSite(site.getUrl()),
+            properties,
+            fieldService,
+            siteService,
+            indexingRepository,
+            pageService,
+            lemmaService,
+            true);
+        executor.execute(siteIndexing);
+        siteIndexings.add(siteIndexing);
+        return true;
+      } else {
+        return false;
+      }
+    }
+  }
+
+  public boolean stopSiteIndexing() {
+    boolean isThreadAlive = false;
+    if (executor.getActiveCount() == 0) {
+      return false;
+    }
+    for(SiteIndexing si:siteIndexings)
+    {
+      si.interrupt();
+    }
+    executor.shutdownNow();
     try {
-      indexing = this.index.IndexAllSites();
-      log.info("Попытка запуска индексации всех сайтов");
+      isThreadAlive = executor.awaitTermination(1, TimeUnit.MINUTES);
     } catch (InterruptedException e) {
-      response = new FalseResponse("Ошибка запуска индексации");
-      log.error("Ошибка запуска индексации", e);
-      return response;
+      log.error("Ошибка закрытия потоков: " + e);
     }
-    if (indexing) {
-      response = new TrueResponse();
-      log.info("Индексация всех сайтов запущена");
-    } else {
-      response = new FalseResponse("Индексация уже запущена");
-      log.warn("Индексация всех сайтов не запущена. Т.к. процесс индексации был запущен ранее.");
+    if (isThreadAlive) {
+      List<Site> siteList = siteService.getAllSites();
+      for (Site site : siteList) {
+        site.setStatus(Status.FAILED);
+        siteService.save(site);
+      }
     }
-    return response;
+    return isThreadAlive;
+  }
+
+  private List<Site> getSiteList() {
+    List<Site> siteList = new ArrayList<>();
+    List<HashMap<String, String>> sites = properties.getSite();
+    for (HashMap<String, String> map : sites) {
+      String url = "";
+      String name = "";
+      for (Map.Entry<String, String> siteInfo : map.entrySet()) {
+        if (siteInfo.getKey().equals("name")) {
+          name = siteInfo.getValue();
+        }
+        if (siteInfo.getKey().equals("url")) {
+          url = siteInfo.getValue();
+        }
+      }
+      Site site = new Site();
+      site.setUrl(url);
+      site.setName(name);
+      site.setStatus(Status.FAILED);
+      siteList.add(site);
+    }
+    return siteList;
+  }
+
+  public List<Indexing> getAllIndexingByLemmaId(int lemmaId) {
+    return indexingRepository.findByLemmaId(lemmaId);
   }
 
 
-  public ResponseService stopIndexing() {
-    log.info("Попытка остановки индексации");
-    boolean indexing = this.index.stopSiteIndexing();
-    ResponseService response;
-    if (indexing) {
-      response = new TrueResponse();
-      log.info("Индексация остановлена");
-    } else {
-      response = new FalseResponse("Индексация не запущена");
-      log.warn(
-          "Остановка индексации не может быть выполнена, потому что процесс индексации не запущен.");
-    }
-    return response;
+  public synchronized void save(Indexing indexing) {
+    indexingRepository.save(indexing);
   }
 
-
-  public ResponseService startIndexingOne(String url) {
-    ResponseService resp;
-    String response;
-    try {
-      response = index.checkedSiteIndexing(url);
-    } catch (InterruptedException e) {
-      resp = new FalseResponse("Ошибка запуска индексации");
-      return resp;
-    }
-    if (response.equals("not found")) {
-      resp = new FalseResponse("Страница находится за пределами сайтов," +
-          " указанных в конфигурационном файле");
-    } else if (response.equals("false")) {
-      resp = new FalseResponse("Индексация страницы уже запущена");
-    } else {
-      resp = new TrueResponse();
-    }
-    return resp;
-  }
 }
+

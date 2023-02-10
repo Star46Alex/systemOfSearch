@@ -7,11 +7,11 @@ import org.springframework.stereotype.Service;
 import java.util.Optional;
 
 @Service
-public class PageRepositoryService {
+public class PageService {
 
   private final PageRepository pageRepository;
 
-  public PageRepositoryService(PageRepository pageRepository) {
+  public PageService(PageRepository pageRepository) {
     this.pageRepository = pageRepository;
 
 

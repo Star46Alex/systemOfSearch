@@ -8,10 +8,10 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class SiteRepositoryService {
+public class SiteService {
 
   private final SiteRepository siteRepository;
-  public SiteRepositoryService(SiteRepository siteRepository) {
+  public SiteService(SiteRepository siteRepository) {
     this.siteRepository = siteRepository;
   }
 

@@ -16,26 +16,25 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Service
-public class SystemOfSearch {
+public class SearchService {
 
   private final Lemmatizer lemmatizer;
-  private final SiteRepositoryService siteRepositoryService;
-  private final IndexingRepositoryService indexingRepositoryService;
-  private final LemmaRepositoryService lemmaRepositoryService;
+  private final SiteService siteService;
+  private final IndexingService indexingService;
+  private final LemmaService lemmaService;
   private final LemmaRepository lemmaRepository;
-  private final PageRepositoryService pageRepositoryService;
+  private final PageService pageService;
 
 
-  public SystemOfSearch(SiteRepositoryService siteRepositoryService,
-      IndexingRepositoryService indexingRepositoryService,
-      LemmaRepositoryService lemmaRepositoryService, LemmaRepository lemmaRepository,
-      PageRepositoryService pageRepositoryService) {
+  public SearchService(SiteService siteService,
+      IndexingService indexingService, LemmaService lemmaService, LemmaRepository lemmaRepository,
+      PageService pageService) {
+    this.indexingService = indexingService;
     this.lemmaRepository = lemmaRepository;
     this.lemmatizer = new Lemmatizer();
-    this.siteRepositoryService = siteRepositoryService;
-    this.indexingRepositoryService = indexingRepositoryService;
-    this.lemmaRepositoryService = lemmaRepositoryService;
-    this.pageRepositoryService = pageRepositoryService;
+    this.siteService = siteService;
+    this.lemmaService = lemmaService;
+    this.pageService = pageService;
   }
 
   public List<Integer> initialPageIds = new ArrayList<>();
@@ -43,11 +42,11 @@ public class SystemOfSearch {
 
   public SearchResponse searchResult(Request request, String url, int offset, int limit) {
     try {
-      Site site = siteRepositoryService.getSite(url);
+      Site site = siteService.getSite(url);
       initialPageIds = new ArrayList<>();
       HashMap<String, Integer> lemmas = lemmatizer.lemmatize(request.getRequest());
       if (site != null) {
-        lemmaRepositoryService.sortLemmasByFrequency(lemmas, site.getId());
+        lemmaService.sortLemmasByFrequency(lemmas, site.getId());
       }
       Map<String, Integer> sortedLemmas = sortingLemmasByFrequency(lemmas);
       filterPagesByLemmas(sortedLemmas);
@@ -69,7 +68,7 @@ private List<RankResult> buildRankResults(Site site,HashMap<String, Integer> lem
   List<RankResult> ranksList;
   if (site == null) {
     ranksList = new ArrayList<>();
-    List<Site> sites = siteRepositoryService.getAllSites();
+    List<Site> sites = siteService.getAllSites();
     for (Site el : sites) {
       List<RankResult> ranks = calculateRanks(lemmas.keySet(), el.getId());
       ranksList.addAll(ranks);
@@ -102,7 +101,7 @@ private List<RankResult> buildRankResults(Site site,HashMap<String, Integer> lem
   public RelevanceStorage buildRelevanceStorage(
       Page page, Request request) {
     RelevanceStorage response = new RelevanceStorage();
-    Site site = siteRepositoryService.getSite(page.getSiteId());
+    Site site = siteService.getSite(page.getSiteId());
     String siteName = site.getName();
     String uri = page.getPath();
     String title = getTitle(page.getContent());
@@ -129,7 +128,7 @@ private List<RankResult> buildRankResults(Site site,HashMap<String, Integer> lem
     double maxRelevance = 0.0;
     for (RankResult rankResult : rankResults) {
       Optional<Page> page =
-          pageRepositoryService.findPageById(rankResult.getPageId());
+          pageService.findPageById(rankResult.getPageId());
       if (page.isPresent()) {
         RelevanceStorage relevanceStorage = buildRelevanceStorage(page.get(), request);
         relevanceStorage.setRelevance(rankResult.getSumRanking());
@@ -151,8 +150,8 @@ private List<RankResult> buildRankResults(Site site,HashMap<String, Integer> lem
   public void filterPagesByLemmas(Map<String, Integer> sorted) throws SQLException {
     for (Map.Entry<String, Integer> entry : sorted.entrySet()) {
       ArrayList<Integer> currentPageIds = new ArrayList<>();
-      List<Lemma> lemma = lemmaRepositoryService.getLemma(entry.getKey());
-      List<Indexing> res = indexingRepositoryService.getAllIndexingByLemmaId(lemma.get(0).getId());
+      List<Lemma> lemma = lemmaService.getLemma(entry.getKey());
+      List<Indexing> res = indexingService.getAllIndexingByLemmaId(lemma.get(0).getId());
       for (Indexing item : res) {
         currentPageIds.add(item.getPageId());
       }
@@ -167,10 +166,10 @@ private List<RankResult> buildRankResults(Site site,HashMap<String, Integer> lem
   public Map<String, Integer> sortingLemmasByFrequency(Map<String, Integer> lemmas) {
     LinkedHashMap<String, Integer> sorted = new LinkedHashMap<>(MapUtil.sortByValue(lemmas));
     for (String key : sorted.keySet()) {
-      List<Lemma> lemma = lemmaRepositoryService.getLemma(key);
+      List<Lemma> lemma = lemmaService.getLemma(key);
       if (lemma != null && !lemma.isEmpty()) {
         for (Lemma lemmaKey : lemma) {
-          List<Indexing> initialResultSet = indexingRepositoryService.getAllIndexingByLemmaId(
+          List<Indexing> initialResultSet = indexingService.getAllIndexingByLemmaId(
               lemmaKey.getId());
           for (Indexing indexing : initialResultSet) {
             int element = indexing.getPageId();

@@ -1,21 +1,22 @@
-package com.alex_star.systemofsearch.service;
+package com.alex_star.systemofsearch.service.web;
 
 import com.alex_star.systemofsearch.dto.response.FalseResponse;
 import com.alex_star.systemofsearch.dto.response.ResponseService;
 import com.alex_star.systemofsearch.model.Request;
+import com.alex_star.systemofsearch.service.SearchService;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.stereotype.Service;
 
 @Service
-public class SystemOfSearchService {
+public class SearchControlService {
 
-  private static final Log log = LogFactory.getLog(SystemOfSearchService.class);
+  private static final Log log = LogFactory.getLog(SearchControlService.class);
 
-  private final SystemOfSearch systemOfSearch;
+  private final SearchService searchService;
 
-  public SystemOfSearchService(SystemOfSearch systemOfSearch) {
-    this.systemOfSearch = systemOfSearch;
+  public SearchControlService(SearchService searchService) {
+    this.searchService = searchService;
 
   }
 
@@ -29,9 +30,9 @@ public class SystemOfSearchService {
       return response;
     }
     if (url.equals("")) {
-      response = systemOfSearch.searchResult(request, null, offset, limit);
+      response = searchService.searchResult(request, null, offset, limit);
     } else {
-      response = systemOfSearch.searchResult(request, url, offset, limit);
+      response = searchService.searchResult(request, url, offset, limit);
     }
     if (response.getResult()) {
       log.info("Запрос на поиск строки обработан, результат получен.");
