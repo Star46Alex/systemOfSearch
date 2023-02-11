@@ -9,13 +9,13 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.stereotype.Service;
 
 @Service
-public class SearchControlService {
+public class WebSearchService {
 
-  private static final Log log = LogFactory.getLog(SearchControlService.class);
+  private static final Log log = LogFactory.getLog(WebSearchService.class);
 
   private final SearchService searchService;
 
-  public SearchControlService(SearchService searchService) {
+  public WebSearchService(SearchService searchService) {
     this.searchService = searchService;
 
   }

@@ -9,13 +9,13 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.stereotype.Service;
 
 @Service
-public class IndexingControlService {
+public class WebIndexingService {
 
   private final IndexingService indexingService;
 
-  private static final Log log = LogFactory.getLog(IndexingControlService.class);
+  private static final Log log = LogFactory.getLog(WebIndexingService.class);
 
-  public IndexingControlService(IndexingService indexingService) {
+  public WebIndexingService(IndexingService indexingService) {
     this.indexingService = indexingService;
   }
 

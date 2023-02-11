@@ -16,14 +16,14 @@ import java.util.List;
 
 
 @Service
-public class Statistic  {
+public class WebStatisticService {
 
-  private static final Log log = LogFactory.getLog(Statistic.class);
+  private static final Log log = LogFactory.getLog(WebStatisticService.class);
   private final SiteService siteService;
   private final LemmaService lemmaService;
   private final PageService pageService;
 
-  public Statistic(SiteService siteService,
+  public WebStatisticService(SiteService siteService,
       LemmaService lemmaService,
       PageService pageService) {
     this.siteService = siteService;

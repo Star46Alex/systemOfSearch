@@ -1,7 +1,7 @@
 package com.alex_star.systemofsearch.controller;
 
 import com.alex_star.systemofsearch.dto.response.ResponseService;
-import com.alex_star.systemofsearch.service.web.IndexingControlService;
+import com.alex_star.systemofsearch.service.web.WebIndexingService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,9 +12,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 public class IndexingController {
 
-  private final IndexingControlService indexing;
+  private final WebIndexingService indexing;
 
-  public IndexingController(IndexingControlService indexing) {
+  public IndexingController(WebIndexingService indexing) {
     this.indexing = indexing;
   }
 

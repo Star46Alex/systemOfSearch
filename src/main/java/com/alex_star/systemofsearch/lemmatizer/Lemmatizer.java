@@ -4,7 +4,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.lucene.morphology.LuceneMorphology;
 import org.apache.lucene.morphology.russian.RussianLuceneMorphology;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -59,15 +58,12 @@ public class Lemmatizer {
 
 
   public String[] splitText(String text) {
-
     return text.split(" ");
-
   }
 
   private List<String> purgeOfOfficialPartsOfSpeech(String[] wordsArray) {
     ArrayList<String> result = new ArrayList<>();
     try {
-
       for (String s : wordsArray) {
         String word = s.replaceAll("[\\pP\\s]", "")
             .replace("_", "").replaceAll("[^А-Я,а-я]*", "").toLowerCase();
@@ -81,12 +77,8 @@ public class Lemmatizer {
             result.add(handledWord);
           }
         }
-
-
       }
-
       return result;
-
     } catch (Exception ex) {
       ex.printStackTrace();
       return result;
@@ -95,16 +87,11 @@ public class Lemmatizer {
 
 
   private String clearStaffWords(String wordBaseForm) {
-
     for (String staff : staffWords) {
       if (wordBaseForm.contains(staff)) {
-
         return "";
       }
-
-
     }
-
     return wordBaseForm.replaceAll("[|].*", "");
   }
   public ArrayList<Integer> findLemmaIndexInText(String text, String lemma) {
@@ -115,7 +102,6 @@ public class Lemmatizer {
       List<String> lemmas = new ArrayList<>();
       try {
         lemmas = luceneMorph.getNormalForms(s1.toLowerCase(Locale.ROOT));
-
       } catch (Exception e) {
         log.debug("Ошибка морфологического анализа. Пропущенные символы: " + s1);
       }
