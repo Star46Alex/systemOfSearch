@@ -1,6 +1,6 @@
 package com.alex_star.systemofsearch.model;
 
-import com.alex_star.systemofsearch.lemmatizer.Lemmatizer;
+import com.alex_star.systemofsearch.service.LemmatizerService;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,14 +18,8 @@ public class Request {
     return request;
   }
 
-  public Request(String request) {
+  public Request(List<String> lemmas,String request) {
     this.request = request;
-    requestLemmas = new ArrayList<>();
-    try {
-      Lemmatizer lemmatizer = new Lemmatizer();
-      requestLemmas.addAll(lemmatizer.getLemmas(request));
-    } catch (Exception e) {
-      System.out.println("ошибка морфологочиского анализа");
-    }
+    requestLemmas = lemmas;
   }
 }

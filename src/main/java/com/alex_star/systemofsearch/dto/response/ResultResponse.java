@@ -1,6 +1,6 @@
 package com.alex_star.systemofsearch.dto.response;
 
-public interface ResponseService {
+public interface ResultResponse {
 
   boolean getResult();
 }

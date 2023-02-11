@@ -1,13 +1,13 @@
-package com.alex_star.systemofsearch.dto.indexResponseEntity;
+package com.alex_star.systemofsearch.dto.statistics;
 
-public class Total {
+public class TotalDto {
 
   long sites;
   long pages;
   long lemmas;
   boolean isIndexing;
 
-  public Total(long sites, long pages, long lemmas, boolean isIndexing) {
+  public TotalDto(long sites, long pages, long lemmas, boolean isIndexing) {
     this.sites = sites;
     this.pages = pages;
     this.lemmas = lemmas;

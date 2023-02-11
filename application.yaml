@@ -1,28 +1,35 @@
-spring.datasource.url: jdbc:mysql://localhost:3306/search_engine
-spring.datasource.username: root
-spring.datasource.password: Honor46Sql$10
-spring.jpa.hibernate.ddl-auto: update
-spring.output.ansi.enabled: ALWAYS
-#logging.level.root: trace
-#logging.file.name: application.log
-#logging.file.max-size: 100mb
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/search_engine?useSSL=false
+    username: root
+    password: Honor46Sql$10
+  output:
+    ansi.enabled: ALWAYS
+  jpa:
+    driver: com.mysql.cj.jdbc.Driver
+    hibernate:
+      database-platform: org.hibernate.dialect.MySQL5Dialect
+      show-sql: true
+      ddl-auto: update
 
 config:
   prefix:
-
   agent: Mozilla/5.0 (Windows; U; WindowsNT 5.1; en-US; rv1.8.1.6) Gecko/20070725 Firefox/2.0.0.6
   webinterface: /admin
   site:
     - url: https://sangria31.ru
       name: што
-#    - url: http://www.playback.ru/
-#      name: Тел
+    - url: http://www.playback.ru/
+      name: Тел
     - url: http://astudio.store
       name: шторы
-    - url: http://xn---31-5cdk9a0a5ba.xn--p1ai
-      name: лестнецы
+    - url: https://volochek.life/
+      name: нов
     - url: https://amelie-shtory.ru
-      name: СТОЛЯРНОЕ ПРОИЗВОДСТВО#
+      name: шторы
     - url: https://www.svetlovka.ru/
+      name: Светловка
+    - url: https://dombulgakova.ru/
       name: Светловка
 

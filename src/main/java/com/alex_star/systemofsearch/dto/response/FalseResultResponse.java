@@ -1,10 +1,10 @@
 package com.alex_star.systemofsearch.dto.response;
 
-public class FalseResponse implements ResponseService {
+public class FalseResultResponse implements ResultResponse {
 
   private final String error;
 
-  public FalseResponse(String error) {
+  public FalseResultResponse(String error) {
     this.error = error;
   }
 

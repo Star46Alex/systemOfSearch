@@ -1,4 +1,4 @@
-package com.alex_star.systemofsearch.lemmatizer;
+package com.alex_star.systemofsearch.service;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -9,10 +9,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import org.springframework.stereotype.Service;
 
-
-public class Lemmatizer {
-  private static final Log log = LogFactory.getLog(Lemmatizer.class);
+@Service
+public class LemmatizerService {
+  private static final Log log = LogFactory.getLog(LemmatizerService.class);
   String[] staffWords = new String[]{
       " СОЮЗ",
       " ПРЕДЛ",
@@ -22,7 +23,7 @@ public class Lemmatizer {
 
   LuceneMorphology luceneMorph;
 
-  public Lemmatizer() {
+  public LemmatizerService() {
     try {
       luceneMorph = new RussianLuceneMorphology();
     } catch (IOException e) {
@@ -30,7 +31,7 @@ public class Lemmatizer {
     }
   }
 
-  public HashMap<String, Integer> lemmatize(String text) {
+  public HashMap<String, Integer> lemmatizer(String text) {
     String[]  words = splitText(text);
     List<String> officialParts = purgeOfOfficialPartsOfSpeech(words);
     HashMap<String, Integer> countOfLemmas = new HashMap<>();

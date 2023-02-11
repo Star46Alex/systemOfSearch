@@ -6,8 +6,8 @@ import com.alex_star.systemofsearch.model.Indexing;
 import com.alex_star.systemofsearch.model.Site;
 import com.alex_star.systemofsearch.model.Status;
 import com.alex_star.systemofsearch.repository.IndexingRepository;
-import com.alex_star.systemofsearch.siteCrawlingSystem.LinkPull;
-import com.alex_star.systemofsearch.util.SiteIndexing;
+import com.alex_star.systemofsearch.crawling.LinkPull;
+import com.alex_star.systemofsearch.crawling.SiteIndexing;
 import java.util.Vector;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -21,10 +21,11 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 @Service
-public class IndexingService {
+public class indexingService {
 
-  private static final Log log = LogFactory.getLog(IndexingService.class);
+  private static final Log log = LogFactory.getLog(indexingService.class);
   private final Properties properties;
+  private final LemmatizerService lemmatizerService;
   private final FieldService fieldService;
   private final SiteService siteService;
   private final IndexingRepository indexingRepository;
@@ -32,12 +33,13 @@ public class IndexingService {
   private final LemmaService lemmaService;
   private final List<SiteIndexing> siteIndexings;
 
-  public IndexingService(Properties properties,
-      FieldService fieldService,
+  public indexingService(Properties properties,
+      LemmatizerService lemmatizerService, FieldService fieldService,
       SiteService siteService,
       IndexingRepository indexingRepository, PageService pageService,
       LemmaService lemmaService) {
     this.properties = properties;
+    this.lemmatizerService = lemmatizerService;
     this.fieldService = fieldService;
     this.siteService = siteService;
     this.indexingRepository = indexingRepository;
@@ -48,7 +50,10 @@ public class IndexingService {
 
   ThreadPoolExecutor executor;
 
-  public boolean IndexAllSites() throws InterruptedException {
+  public boolean indexAllSites() throws InterruptedException {
+    if(executor!=null) {
+      throw new IllegalStateException("Индексация уже запущена!");
+    }
     LinkPull.allLinks.clear();
     List<Site> siteList = getSiteList();
     executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(siteList.size());
@@ -61,6 +66,7 @@ public class IndexingService {
         return false;
       }
     }
+
     return true;
   }
 
@@ -88,6 +94,7 @@ public class IndexingService {
           indexingRepository,
           pageService,
           lemmaService,
+          lemmatizerService,
           false);
       executor.execute(indexing);
       site.setUrl(baseUrl);
@@ -118,6 +125,7 @@ public class IndexingService {
           indexingRepository,
           pageService,
           lemmaService,
+          lemmatizerService,
           true);
       executor.execute(siteIndexing);
       siteIndexings.add(siteIndexing);
@@ -132,6 +140,7 @@ public class IndexingService {
             indexingRepository,
             pageService,
             lemmaService,
+            lemmatizerService,
             true);
         executor.execute(siteIndexing);
         siteIndexings.add(siteIndexing);
@@ -164,6 +173,7 @@ public class IndexingService {
         siteService.save(site);
       }
     }
+    executor=null;
     return isThreadAlive;
   }
 

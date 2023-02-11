@@ -1,9 +1,9 @@
 package com.alex_star.systemofsearch.service.web;
 
-import com.alex_star.systemofsearch.dto.indexResponseEntity.Detailed;
-import com.alex_star.systemofsearch.dto.indexResponseEntity.Statistics;
-import com.alex_star.systemofsearch.dto.indexResponseEntity.Total;
-import com.alex_star.systemofsearch.dto.response.StatisticResponse;
+import com.alex_star.systemofsearch.dto.statistics.DetailedDto;
+import com.alex_star.systemofsearch.dto.statistics.StatisticsDto;
+import com.alex_star.systemofsearch.dto.statistics.TotalDto;
+import com.alex_star.systemofsearch.dto.response.StatisticResultResponse;
 import com.alex_star.systemofsearch.model.Site;
 import com.alex_star.systemofsearch.model.Status;
 import com.alex_star.systemofsearch.service.LemmaService;
@@ -16,14 +16,14 @@ import java.util.List;
 
 
 @Service
-public class WebStatisticService {
+public class WebStatisticsService {
 
-  private static final Log log = LogFactory.getLog(WebStatisticService.class);
+  private static final Log log = LogFactory.getLog(WebStatisticsService.class);
   private final SiteService siteService;
   private final LemmaService lemmaService;
   private final PageService pageService;
 
-  public WebStatisticService(SiteService siteService,
+  public WebStatisticsService(SiteService siteService,
       LemmaService lemmaService,
       PageService pageService) {
     this.siteService = siteService;
@@ -31,27 +31,27 @@ public class WebStatisticService {
     this.pageService = pageService;
   }
 
-  public StatisticResponse getStatistic() {
-    Total total = getTotal();
+  public StatisticResultResponse getStatistic() {
+    TotalDto totalDto = getTotal();
     List<Site> siteList = siteService.getAllSites();
-    Detailed[] detaileds = new Detailed[siteList.size()];
+    DetailedDto[] detailedDtos = new DetailedDto[siteList.size()];
     for (int i = 0; i < siteList.size(); i++) {
-      detaileds[i] = getDetailed(siteList.get(i));
+      detailedDtos[i] = getDetailed(siteList.get(i));
     }
     log.info("Получение статистики.");
-    return new StatisticResponse(true, new Statistics(total, detaileds));
+    return new StatisticResultResponse(true, new StatisticsDto(totalDto, detailedDtos));
   }
 
-  private Total getTotal() {
+  private TotalDto getTotal() {
     long sites = siteService.siteCount();
     long lemmas = lemmaService.lemmaCount();
     long pages = pageService.pageCount();
     boolean isIndexing = isSitesIndexing();
-    return new Total(sites, pages, lemmas, isIndexing);
+    return new TotalDto(sites, pages, lemmas, isIndexing);
 
   }
 
-  private Detailed getDetailed(Site site) {
+  private DetailedDto getDetailed(Site site) {
     String url = site.getUrl();
     String name = site.getName();
     Status status = site.getStatus();
@@ -62,7 +62,7 @@ public class WebStatisticService {
     String error = site.getLastError();
     long pages = pageService.pageCount(site.getId());
     long lemmas = lemmaService.lemmaCount(site.getId());
-    return new Detailed(url, name, status, time, error, pages, lemmas);
+    return new DetailedDto(url, name, status, time, error, pages, lemmas);
   }
 
   private boolean isSitesIndexing() {

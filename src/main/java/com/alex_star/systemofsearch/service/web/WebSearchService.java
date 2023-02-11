@@ -1,7 +1,7 @@
 package com.alex_star.systemofsearch.service.web;
 
-import com.alex_star.systemofsearch.dto.response.FalseResponse;
-import com.alex_star.systemofsearch.dto.response.ResponseService;
+import com.alex_star.systemofsearch.dto.response.FalseResultResponse;
+import com.alex_star.systemofsearch.dto.response.ResultResponse;
 import com.alex_star.systemofsearch.model.Request;
 import com.alex_star.systemofsearch.service.SearchService;
 import org.apache.commons.logging.Log;
@@ -20,13 +20,13 @@ public class WebSearchService {
 
   }
 
-  ResponseService response;
+  ResultResponse response;
 
 
-  public ResponseService getResponse(Request request, String url, int offset, int limit) {
+  public ResultResponse getResponse(Request request, String url, int offset, int limit) {
     log.info("Запрос на поиск строки- \"" + request.getRequest() + "\"");
     if (request.getRequest().equals("")) {
-      response = new FalseResponse("Задан пустой поисковый запрос");
+      response = new FalseResultResponse("Задан пустой поисковый запрос");
       return response;
     }
     if (url.equals("")) {
@@ -39,7 +39,7 @@ public class WebSearchService {
       return response;
     } else {
       log.warn("Запрос на поиск строки обработан, указанная страница не найдена.");
-      return new FalseResponse("Указанная страница не найдена");
+      return new FalseResultResponse("Указанная страница не найдена");
     }
   }
 }

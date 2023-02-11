@@ -1,8 +1,10 @@
 package com.alex_star.systemofsearch.controller;
 
-import com.alex_star.systemofsearch.dto.response.ResponseService;
+import com.alex_star.systemofsearch.dto.response.ResultResponse;
 import com.alex_star.systemofsearch.model.Request;
+import com.alex_star.systemofsearch.service.LemmatizerService;
 import com.alex_star.systemofsearch.service.web.WebSearchService;
+import java.util.ArrayList;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.http.ResponseEntity;
@@ -16,10 +18,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class SearchController {
 
   private final WebSearchService search;
+  private final LemmatizerService lemmatizerService;
   private static final Log log = LogFactory.getLog(SearchController.class);
 
-  public SearchController(WebSearchService search) {
+  public SearchController(WebSearchService search, LemmatizerService lemmatizerService) {
     this.search = search;
+    this.lemmatizerService = lemmatizerService;
   }
 
   @GetMapping("/search")
@@ -27,14 +31,19 @@ public class SearchController {
       @RequestParam(name = "query", required = false, defaultValue = "") String query,
       @RequestParam(name = "site", required = false, defaultValue = "") String site,
       @RequestParam(name = "offset", required = false, defaultValue = "0") int offset,
-      @RequestParam(name = "limit", required = false, defaultValue = "0") int limit)
-      {
+      @RequestParam(name = "limit", required = false, defaultValue = "0") int limit) {
 
-        StopWatch stopWatch = new StopWatch();
-        stopWatch.start();
-        ResponseService service = search.getResponse(new Request(query), site, offset, limit);
-        stopWatch.stop();
-        log.info("Search time " + stopWatch.getTotalTimeMillis() + " ms");
-    return ResponseEntity.ok(service);
+    StopWatch stopWatch = new StopWatch();
+    stopWatch.start();
+    try {
+      ArrayList<String> lemmas = lemmatizerService.getLemmas(query);
+      ResultResponse service = search.getResponse(new Request(lemmas, query), site, offset, limit);
+      stopWatch.stop();
+      log.info("Search time " + stopWatch.getTotalTimeMillis() + " ms");
+      return ResponseEntity.ok(service);
+    } catch (Exception e) {
+      System.out.println("ошибка морфологочиского анализа");
+      return ResponseEntity.internalServerError().build();
+    }
   }
 }

@@ -1,4 +1,4 @@
-package com.alex_star.systemofsearch.siteCrawlingSystem;
+package com.alex_star.systemofsearch.crawling;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;

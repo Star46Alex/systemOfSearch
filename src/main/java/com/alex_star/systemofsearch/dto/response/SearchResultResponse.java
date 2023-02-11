@@ -1,24 +1,24 @@
 package com.alex_star.systemofsearch.dto.response;
 
-import com.alex_star.systemofsearch.dto.searchResponseStorage.RelevanceStorage;
+import com.alex_star.systemofsearch.dto.RelevanceStorageDto;
 
 import java.util.ArrayList;
 
 
-public class SearchResponse implements ResponseService {
+public class SearchResultResponse implements ResultResponse {
 
   private boolean result;
   private int count;
-  private ArrayList<RelevanceStorage> data;
+  private ArrayList<RelevanceStorageDto> data;
 
-  public SearchResponse() {
+  public SearchResultResponse() {
   }
 
-  public SearchResponse(boolean result) {
+  public SearchResultResponse(boolean result) {
     this.result = result;
   }
 
-  public SearchResponse(boolean result, int count, ArrayList<RelevanceStorage> data) {
+  public SearchResultResponse(boolean result, int count, ArrayList<RelevanceStorageDto> data) {
     this.result = result;
     this.count = count;
     this.data = data;
@@ -40,11 +40,11 @@ public class SearchResponse implements ResponseService {
     this.count = count;
   }
 
-  public ArrayList<RelevanceStorage> getData() {
+  public ArrayList<RelevanceStorageDto> getData() {
     return data;
   }
 
-  public void setData(ArrayList<RelevanceStorage> data) {
+  public void setData(ArrayList<RelevanceStorageDto> data) {
     this.data = data;
   }
 }

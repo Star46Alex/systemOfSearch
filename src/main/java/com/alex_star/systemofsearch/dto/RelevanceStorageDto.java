@@ -1,6 +1,6 @@
-package com.alex_star.systemofsearch.dto.searchResponseStorage;
+package com.alex_star.systemofsearch.dto;
 
-public class RelevanceStorage {
+public class RelevanceStorageDto {
 
   String site;
   String siteName;
@@ -10,7 +10,7 @@ public class RelevanceStorage {
   double relevance;
 
 
-  public RelevanceStorage() {
+  public RelevanceStorageDto() {
   }
 
 

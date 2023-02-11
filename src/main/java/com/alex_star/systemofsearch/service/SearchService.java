@@ -1,8 +1,7 @@
 package com.alex_star.systemofsearch.service;
 
-import com.alex_star.systemofsearch.dto.response.SearchResponse;
-import com.alex_star.systemofsearch.dto.searchResponseStorage.RelevanceStorage;
-import com.alex_star.systemofsearch.lemmatizer.Lemmatizer;
+import com.alex_star.systemofsearch.dto.response.SearchResultResponse;
+import com.alex_star.systemofsearch.dto.RelevanceStorageDto;
 import com.alex_star.systemofsearch.model.*;
 import com.alex_star.systemofsearch.repository.LemmaRepository;
 import com.alex_star.systemofsearch.util.MapUtil;
@@ -18,20 +17,20 @@ import java.util.regex.Pattern;
 @Service
 public class SearchService {
 
-  private final Lemmatizer lemmatizer;
+  private final LemmatizerService lemmatizerService;
   private final SiteService siteService;
-  private final IndexingService indexingService;
+  private final com.alex_star.systemofsearch.service.indexingService indexingService;
   private final LemmaService lemmaService;
   private final LemmaRepository lemmaRepository;
   private final PageService pageService;
 
 
   public SearchService(SiteService siteService,
-      IndexingService indexingService, LemmaService lemmaService, LemmaRepository lemmaRepository,
-      PageService pageService) {
+      com.alex_star.systemofsearch.service.indexingService indexingService, LemmaService lemmaService, LemmaRepository lemmaRepository,
+      PageService pageService,LemmatizerService lemmatizerService) {
     this.indexingService = indexingService;
     this.lemmaRepository = lemmaRepository;
-    this.lemmatizer = new Lemmatizer();
+    this.lemmatizerService = lemmatizerService;
     this.siteService = siteService;
     this.lemmaService = lemmaService;
     this.pageService = pageService;
@@ -40,11 +39,11 @@ public class SearchService {
   public List<Integer> initialPageIds = new ArrayList<>();
 
 
-  public SearchResponse searchResult(Request request, String url, int offset, int limit) {
+  public SearchResultResponse searchResult(Request request, String url, int offset, int limit) {
     try {
       Site site = siteService.getSite(url);
       initialPageIds = new ArrayList<>();
-      HashMap<String, Integer> lemmas = lemmatizer.lemmatize(request.getRequest());
+      HashMap<String, Integer> lemmas = lemmatizerService.lemmatizer(request.getRequest());
       if (site != null) {
         lemmaService.sortLemmasByFrequency(lemmas, site.getId());
       }
@@ -52,7 +51,7 @@ public class SearchService {
       filterPagesByLemmas(sortedLemmas);
       List<RankResult> ranksList = buildRankResults(site, lemmas);
       if (ranksList.isEmpty()) {
-        return new SearchResponse(false);
+        return new SearchResultResponse(false);
       }
       sortResults(ranksList);
       int count = ranksList.size();
@@ -61,7 +60,7 @@ public class SearchService {
     } catch (SQLException throwables) {
       throwables.printStackTrace();
     }
-    return new SearchResponse();
+    return new SearchResultResponse();
   }
 
 private List<RankResult> buildRankResults(Site site,HashMap<String, Integer> lemmas) {
@@ -93,14 +92,14 @@ private List<RankResult> buildRankResults(Site site,HashMap<String, Integer> lem
     Collections.reverse(ranksList);
   }
 
-  private SearchResponse buildSearchResponse(List<RankResult> ranksList, Request request,int count) {
-    ArrayList<RelevanceStorage> relevanceStoragesL = new ArrayList<>(calculateRelevance(ranksList, request));
-    return new SearchResponse(true, count, relevanceStoragesL);
+  private SearchResultResponse buildSearchResponse(List<RankResult> ranksList, Request request,int count) {
+    ArrayList<RelevanceStorageDto> relevanceStoragesLDto = new ArrayList<>(calculateRelevance(ranksList, request));
+    return new SearchResultResponse(true, count, relevanceStoragesLDto);
   }
 
-  public RelevanceStorage buildRelevanceStorage(
+  public RelevanceStorageDto buildRelevanceStorage(
       Page page, Request request) {
-    RelevanceStorage response = new RelevanceStorage();
+    RelevanceStorageDto response = new RelevanceStorageDto();
     Site site = siteService.getSite(page.getSiteId());
     String siteName = site.getName();
     String uri = page.getPath();
@@ -122,28 +121,28 @@ private List<RankResult> buildRankResults(Site site,HashMap<String, Integer> lem
     return new ArrayList<>();
   }
 
-  private ArrayList<RelevanceStorage> calculateRelevance(List<RankResult> rankResults,
+  private ArrayList<RelevanceStorageDto> calculateRelevance(List<RankResult> rankResults,
       Request request) {
-    ArrayList<RelevanceStorage> relevanceStorages = new ArrayList<>();
+    ArrayList<RelevanceStorageDto> relevanceStorageDtos = new ArrayList<>();
     double maxRelevance = 0.0;
     for (RankResult rankResult : rankResults) {
       Optional<Page> page =
           pageService.findPageById(rankResult.getPageId());
       if (page.isPresent()) {
-        RelevanceStorage relevanceStorage = buildRelevanceStorage(page.get(), request);
-        relevanceStorage.setRelevance(rankResult.getSumRanking());
-        relevanceStorages.add(relevanceStorage);
+        RelevanceStorageDto relevanceStorageDto = buildRelevanceStorage(page.get(), request);
+        relevanceStorageDto.setRelevance(rankResult.getSumRanking());
+        relevanceStorageDtos.add(relevanceStorageDto);
       }
       if (maxRelevance < rankResult.getSumRanking()) {
         maxRelevance = rankResult.getSumRanking();
       }
     }
-    for (RelevanceStorage storage : relevanceStorages) {
+    for (RelevanceStorageDto storage : relevanceStorageDtos) {
       if (maxRelevance != 0) {
         storage.setRelevance(storage.getRelevance() / maxRelevance);
       }
     }
-    return relevanceStorages;
+    return relevanceStorageDtos;
   }
 
 
@@ -218,7 +217,7 @@ private List<RankResult> buildRankResults(Site site,HashMap<String, Integer> lem
     List<String> req = request.getRequestLemmas();
     Set<Integer> integerList = new TreeSet<>();
     for (String s : req) {
-      integerList.addAll(lemmatizer.findLemmaIndexInText(string, s));
+      integerList.addAll(lemmatizerService.findLemmaIndexInText(string, s));
     }
     return setLemmaBold(string,integerList);
   }

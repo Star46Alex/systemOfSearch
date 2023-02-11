@@ -1,11 +1,10 @@
-package com.alex_star.systemofsearch.util;
+package com.alex_star.systemofsearch.crawling;
 
 import com.alex_star.systemofsearch.config.Properties;
-import com.alex_star.systemofsearch.lemmatizer.Lemmatizer;
+import com.alex_star.systemofsearch.service.LemmatizerService;
 import com.alex_star.systemofsearch.model.*;
 import com.alex_star.systemofsearch.repository.IndexingRepository;
 import com.alex_star.systemofsearch.service.*;
-import com.alex_star.systemofsearch.siteCrawlingSystem.AllLinks;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jsoup.Connection;
@@ -15,10 +14,11 @@ import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 import java.io.IOException;
 import java.util.*;
+
 public class SiteIndexing extends Thread {
 
     private final static Log log = LogFactory.getLog(SiteIndexing.class);
-    private final Lemmatizer lemmatizer;
+    private final LemmatizerService lemmatizerService;
     private final Site site;
     private final Properties properties;
     private final FieldService fieldService;
@@ -34,12 +34,12 @@ public class SiteIndexing extends Thread {
         FieldService fieldService,
         SiteService siteService,
         IndexingRepository indexingRepository, PageService pageService,
-        LemmaService lemmaService,
+        LemmaService lemmaService,LemmatizerService lemmatizerService,
         boolean allSite) {
         this.site = site;
         this.indexingRepository = indexingRepository;
         this.allSite = allSite;
-        this.lemmatizer = new Lemmatizer();
+        this.lemmatizerService = lemmatizerService;
         this.properties = properties;
         this.fieldService = fieldService;
         this.siteService = siteService;
@@ -101,7 +101,7 @@ public class SiteIndexing extends Thread {
                 String name = field.getName();
                 float weight = field.getWeight();
                 String stringByTeg = getStringByTeg(name, page.getContent());
-                HashMap<String, Integer> tempMap = lemmatizer.lemmatize(stringByTeg);
+                HashMap<String, Integer> tempMap = lemmatizerService.lemmatizer(stringByTeg);
                 map.putAll(tempMap);
                 indexing.putAll(indexingLemmas(tempMap, weight));
             }

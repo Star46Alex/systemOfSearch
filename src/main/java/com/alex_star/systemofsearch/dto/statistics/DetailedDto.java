@@ -1,8 +1,8 @@
-package com.alex_star.systemofsearch.dto.indexResponseEntity;
+package com.alex_star.systemofsearch.dto.statistics;
 
 import com.alex_star.systemofsearch.model.Status;
 
-public class Detailed {
+public class DetailedDto {
 
   String url;
   String name;
@@ -12,7 +12,7 @@ public class Detailed {
   long pages;
   long lemmas;
 
-  public Detailed(String url,
+  public DetailedDto(String url,
       String name,
       Status status,
       long statusTime,
