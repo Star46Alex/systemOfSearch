@@ -6,56 +6,56 @@ import javax.persistence.*;
 @Table(name = "indexing")
 public class Indexing {
 
-  @Id
-  @GeneratedValue(strategy = GenerationType.AUTO)
-  private int id;
-  @Column(name = "page_id")
-  private int pageId;
-  @Column(name = "lemma_id")
-  private int lemmaId;
-  private float ranking;
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private int id;
+    @Column(name = "page_id")
+    private int pageId;
+    @Column(name = "lemma_id")
+    private int lemmaId;
+    private float ranking;
 
-  public Indexing() {
-  }
+    public Indexing() {
+    }
 
-  public Indexing(int pageId, int lemmaId, float ranking) {
-    this.pageId = pageId;
-    this.lemmaId = lemmaId;
-    this.ranking = ranking;
-  }
+    public Indexing(int pageId, int lemmaId, float ranking) {
+        this.pageId = pageId;
+        this.lemmaId = lemmaId;
+        this.ranking = ranking;
+    }
 
-  public int getPageId() {
-    return pageId;
-  }
+    public int getPageId() {
+        return pageId;
+    }
 
-  public void setPageId(int pageId) {
-    this.pageId = pageId;
-  }
+    public void setPageId(int pageId) {
+        this.pageId = pageId;
+    }
 
-  public int getLemmaId() {
-    return lemmaId;
-  }
+    public int getLemmaId() {
+        return lemmaId;
+    }
 
-  public void setLemmaId(int lemmaId) {
-    this.lemmaId = lemmaId;
-  }
+    public void setLemmaId(int lemmaId) {
+        this.lemmaId = lemmaId;
+    }
 
-  public float getRank() {
-    return ranking;
-  }
+    public float getRank() {
+        return ranking;
+    }
 
-  public void setRank(float rank) {
-    this.ranking = rank;
-  }
+    public void setRank(float rank) {
+        this.ranking = rank;
+    }
 
-  @Override
-  public String toString() {
-    return "IndexT{" +
-        "pageId=" + pageId +
-        ", lemmaId=" + lemmaId +
-        ", ranking=" + ranking +
-        '}';
-  }
+    @Override
+    public String toString() {
+        return "IndexT{" +
+                "pageId=" + pageId +
+                ", lemmaId=" + lemmaId +
+                ", ranking=" + ranking +
+                '}';
+    }
 
 }
 

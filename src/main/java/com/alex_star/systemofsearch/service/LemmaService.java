@@ -13,65 +13,65 @@ import java.util.Map;
 
 public class LemmaService {
 
-  private final LemmaRepository lemmaRepository;
+    private final LemmaRepository lemmaRepository;
 
 
-  public LemmaService(LemmaRepository lemmaRepository) {
-    this.lemmaRepository = lemmaRepository;
-  }
-
-
-  public List<Lemma> getLemma(String lemmaName) {
-    List<Lemma> lemmas = null;
-    try {
-      lemmas = lemmaRepository.findSiteByLemma(lemmaName);
-      if (lemmas == null) {
-        lemmas = new ArrayList<>();
-      }
-      if (lemmas.isEmpty()) {
-        lemmas.add(new Lemma());
-      }
-
-    } catch (Exception e) {
-      e.printStackTrace();
+    public LemmaService(LemmaRepository lemmaRepository) {
+        this.lemmaRepository = lemmaRepository;
     }
-    return lemmas;
-  }
 
 
-  public synchronized void save(Lemma lemma) {
-    lemmaRepository.save(lemma);
-  }
+    public List<Lemma> getLemma(String lemmaName) {
+        List<Lemma> lemmas = null;
+        try {
+            lemmas = lemmaRepository.findSiteByLemma(lemmaName);
+            if (lemmas == null) {
+                lemmas = new ArrayList<>();
+            }
+            if (lemmas.isEmpty()) {
+                lemmas.add(new Lemma());
+            }
 
-
-  public long lemmaCount() {
-    return lemmaRepository.count();
-  }
-
-
-  public long lemmaCount(long siteId) {
-    return lemmaRepository.count(siteId);
-  }
-
-
-  public void sortLemmasByFrequency(Map<String, Integer> lemmas, int siteId)
-      throws SQLException {
-    for (Map.Entry<String, Integer> entry : lemmas.entrySet()) {
-      String key = entry.getKey();
-
-      int result = 0;
-
-      if (key != null && !key.isEmpty()) {
-        Lemma lemma = lemmaRepository.getLemmaByName(key, siteId);
-        if (lemma != null) {
-          result = lemma.getFrequency();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        if (result != 0) {
-          lemmas.replace(key, result);
-        }
-      }
-
+        return lemmas;
     }
-  }
+
+
+    public synchronized void save(Lemma lemma) {
+        lemmaRepository.save(lemma);
+    }
+
+
+    public long lemmaCount() {
+        return lemmaRepository.count();
+    }
+
+
+    public long lemmaCount(long siteId) {
+        return lemmaRepository.count(siteId);
+    }
+
+
+    public void sortLemmasByFrequency(Map<String, Integer> lemmas, int siteId)
+            throws SQLException {
+        for (Map.Entry<String, Integer> entry : lemmas.entrySet()) {
+            String key = entry.getKey();
+
+            int result = 0;
+
+            if (key != null && !key.isEmpty()) {
+                Lemma lemma = lemmaRepository.getLemmaByName(key, siteId);
+                if (lemma != null) {
+                    result = lemma.getFrequency();
+                }
+                if (result != 0) {
+                    lemmas.replace(key, result);
+                }
+            }
+
+        }
+    }
 
 }

@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+
 import java.util.Collection;
 import java.util.List;
 
@@ -13,15 +14,15 @@ import java.util.List;
 
 public interface LemmaRepository extends CrudRepository<Lemma, Integer> {
 
-  List<Lemma> findSiteByLemma(String lemma);
+    List<Lemma> findSiteByLemma(String lemma);
 
-  @Query(value = "SELECT count(*) from Lemma where site_id = :id", nativeQuery = true)
-  long count(@Param("id") long id);
+    @Query(value = "SELECT count(*) from Lemma where site_id = :id", nativeQuery = true)
+    long count(@Param("id") long id);
 
-  @Query(value = "SELECT * FROM  Lemma WHERE lemma =(:key) and site_id=(:siteId)", nativeQuery = true)
-  Lemma getLemmaByName(String key, int siteId);
+    @Query(value = "SELECT * FROM  Lemma WHERE lemma =(:key) and site_id=(:siteId)", nativeQuery = true)
+    Lemma getLemmaByName(String key, int siteId);
 
-  @Query(value = """
+    @Query(value = """
             select distinct page_id as pageId,
                    sum(ranking) over (partition by page_id) as sumRanking
             from Indexing i
@@ -32,6 +33,6 @@ public interface LemmaRepository extends CrudRepository<Lemma, Integer> {
                           and site_id = :site_id
                       )
             """,
-      nativeQuery = true)
-  List<RankResult> getRanks(List<Integer> pageIds, Collection<String> lemmas, int site_id);
+            nativeQuery = true)
+    List<RankResult> getRanks(List<Integer> pageIds, Collection<String> lemmas, int site_id);
 }

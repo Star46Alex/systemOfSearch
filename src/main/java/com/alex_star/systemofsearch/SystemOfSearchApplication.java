@@ -7,8 +7,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class SystemOfSearchApplication {
 
-  public static void main(String[] args) {
-    SpringApplication.run(SystemOfSearchApplication.class, args);
-  }
+    public static void main(String[] args) {
+        SpringApplication.run(SystemOfSearchApplication.class, args);
+    }
 
 }

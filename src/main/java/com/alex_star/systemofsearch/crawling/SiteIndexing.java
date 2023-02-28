@@ -12,6 +12,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.UnsupportedMimeTypeException;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
+
 import java.io.IOException;
 import java.util.*;
 
@@ -27,15 +28,15 @@ public class SiteIndexing extends Thread {
     private final PageService pageService;
     private final LemmaService lemmaService;
     private final boolean allSite;
-    private AllLinks allLinks;
+    private ListOfLinks listOfLinks;
 
     public SiteIndexing(
-        Site site, Properties properties,
-        FieldService fieldService,
-        SiteService siteService,
-        IndexingRepository indexingRepository, PageService pageService,
-        LemmaService lemmaService,LemmatizerService lemmatizerService,
-        boolean allSite) {
+            Site site, Properties properties,
+            FieldService fieldService,
+            SiteService siteService,
+            IndexingRepository indexingRepository, PageService pageService,
+            LemmaService lemmaService, LemmatizerService lemmatizerService,
+            boolean allSite) {
         this.site = site;
         this.indexingRepository = indexingRepository;
         this.allSite = allSite;
@@ -65,7 +66,7 @@ public class SiteIndexing extends Thread {
 
     @Override
     public void interrupt() {
-        allLinks.interrupt();
+        listOfLinks.interrupt();
         super.interrupt();
     }
 
@@ -73,11 +74,11 @@ public class SiteIndexing extends Thread {
         site.setStatus(Status.INDEXING);
         site.setStatusTime(new Date());
         siteService.save(site);
-        allLinks = new AllLinks(site.getUrl());
-        allLinks.builtAllLinks();
+        listOfLinks = new ListOfLinks(site.getUrl());
+        listOfLinks.builtAllLinks();
         log.info("Карта сайта готова: " + site.getUrl());
         log.info("Начало индексации " + site.getUrl());
-        List<String> allSiteUrls = allLinks.getAllLinks();
+        List<String> allSiteUrls = listOfLinks.getAllLinks();
         for (String url : allSiteUrls) {
             runOneSiteIndexing(url);
         }
@@ -139,9 +140,9 @@ public class SiteIndexing extends Thread {
         log.info("getSearchPage=" + url + ", siteId=" + siteId);
         Page page = new Page();
         Connection.Response response = Jsoup.connect(url)
-            .userAgent(properties.getAgent())
-            .referrer("https://www.google.com")
-            .execute();
+                .userAgent(properties.getAgent())
+                .referrer("https://www.google.com")
+                .execute();
         String content = response.body();
         int code = response.statusCode();
         page.setCode(code);
@@ -175,9 +176,9 @@ public class SiteIndexing extends Thread {
             String lemmaName = lemma.getKey();
             List<Lemma> lemma1 = lemmaService.getLemma(lemmaName);
             Lemma lemma2 = lemma1.stream().
-                filter(lemma3 -> lemma3.getSiteId() == siteId).
-                findFirst().
-                orElse(null);
+                    filter(lemma3 -> lemma3.getSiteId() == siteId).
+                    findFirst().
+                    orElse(null);
             if (lemma2 == null) {
                 Lemma newLemma = new Lemma(lemmaName, 1, siteId);
                 lemmaService.save(newLemma);

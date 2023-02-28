@@ -19,17 +19,11 @@ config:
   webinterface: /admin
   site:
     - url: https://sangria31.ru
-      name: што
+      name: Шторы-сангрия
     - url: http://www.playback.ru/
-      name: Тел
+      name: Телефоны
     - url: http://astudio.store
-      name: шторы
-    - url: https://volochek.life/
-      name: нов
-    - url: https://amelie-shtory.ru
-      name: шторы
-    - url: https://www.svetlovka.ru/
-      name: Светловка
-    - url: https://dombulgakova.ru/
-      name: Светловка
+      name: Шторы-Астудия
+    - url: https://ipfran.ru/
+      name: ИПФ РАН
 

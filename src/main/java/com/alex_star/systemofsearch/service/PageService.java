@@ -4,44 +4,44 @@ import com.alex_star.systemofsearch.model.Page;
 import com.alex_star.systemofsearch.repository.PageRepository;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+
 import java.util.Optional;
 
 @Service
 public class PageService {
 
-  private final PageRepository pageRepository;
+    private final PageRepository pageRepository;
 
-  public PageService(PageRepository pageRepository) {
-    this.pageRepository = pageRepository;
-
-
-  }
-
-  public Page getPage(String path) {
-    return pageRepository.findByPath(path);
-  }
+    public PageService(PageRepository pageRepository) {
+        this.pageRepository = pageRepository;
 
 
+    }
 
-  @Cacheable("pages")
-  public Optional<Page> findPageById(int id) {
-    return pageRepository.findPageById(id);
-  }
-
-
-  public synchronized void save(Page page) {
-    pageRepository.save(page);
-  }
+    public Page getPage(String path) {
+        return pageRepository.findByPath(path);
+    }
 
 
-  public long pageCount() {
-    return pageRepository.count();
-  }
+    @Cacheable("pages")
+    public Optional<Page> findPageById(int id) {
+        return pageRepository.findPageById(id);
+    }
 
 
-  public long pageCount(long siteId) {
-    return pageRepository.count(siteId);
-  }
+    public synchronized void save(Page page) {
+        pageRepository.save(page);
+    }
+
+
+    public long pageCount() {
+        return pageRepository.count();
+    }
+
+
+    public long pageCount(long siteId) {
+        return pageRepository.count(siteId);
+    }
 
 }
 

@@ -2,78 +2,78 @@ package com.alex_star.systemofsearch.dto;
 
 public class RelevanceStorageDto {
 
-  String site;
-  String siteName;
-  String uri;
-  String title;
-  String snippet;
-  double relevance;
+    String site;
+    String siteName;
+    String uri;
+    String title;
+    String snippet;
+    double relevance;
 
 
-  public RelevanceStorageDto() {
-  }
-
-
-  public String getSite() {
-    if (site != null) {
-      return site;
+    public RelevanceStorageDto() {
     }
-    return "";
-  }
 
-  public void setSite(String site) {
-    this.site = site;
-  }
 
-  public String getSiteName() {
-    return siteName;
-  }
+    public String getSite() {
+        if (site != null) {
+            return site;
+        }
+        return "";
+    }
 
-  public void setSiteName(String siteName) {
-    this.siteName = siteName;
-  }
+    public void setSite(String site) {
+        this.site = site;
+    }
 
-  public String getUri() {
-    return uri;
-  }
+    public String getSiteName() {
+        return siteName;
+    }
 
-  public void setUri(String uri) {
-    this.uri = uri;
-  }
+    public void setSiteName(String siteName) {
+        this.siteName = siteName;
+    }
 
-  public String getTitle() {
-    return title;
-  }
+    public String getUri() {
+        return uri;
+    }
 
-  public void setTitle(String title) {
-    this.title = title;
-  }
+    public void setUri(String uri) {
+        this.uri = uri;
+    }
 
-  public String getSnippet() {
-    return snippet;
-  }
+    public String getTitle() {
+        return title;
+    }
 
-  public void setSnippet(String snippet) {
-    this.snippet = snippet;
-  }
+    public void setTitle(String title) {
+        this.title = title;
+    }
 
-  public double getRelevance() {
-    return relevance;
-  }
+    public String getSnippet() {
+        return snippet;
+    }
 
-  public void setRelevance(double relevance) {
-    this.relevance = relevance;
-  }
+    public void setSnippet(String snippet) {
+        this.snippet = snippet;
+    }
 
-  @Override
-  public String toString() {
-    return "SearchData{" +
-        "uri='" + uri + '\'' +
-        ", title='" + title + '\'' +
-        ", snippet='" + snippet + '\'' +
-        ", relevance=" + relevance +
-        '}';
-  }
+    public double getRelevance() {
+        return relevance;
+    }
+
+    public void setRelevance(double relevance) {
+        this.relevance = relevance;
+    }
+
+    @Override
+    public String toString() {
+        return "SearchData{" +
+                "uri='" + uri + '\'' +
+                ", title='" + title + '\'' +
+                ", snippet='" + snippet + '\'' +
+                ", relevance=" + relevance +
+                '}';
+    }
 }
 
 
